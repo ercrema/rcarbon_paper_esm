@@ -1,0 +1,310 @@
+---
+title: "Model-based inferences from large sets of radiocarbon dates: software and method - Electronic Supplementary Material"
+author: "E.Crema"
+date: "14 November 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Setup
+
+<!--We should submit on CRAN before submitting the paper, or perhaps after review -->
+```{r}
+#Install rcarbon
+#install.packages("rcarbon")
+library(rcarbon)
+
+# Read Calibration Curve For Visualisation
+intcal13 <- read.csv('http://www.radiocarbon.org/IntCal13%20files/intcal13.14c', encoding="UTF-8",skip=11,header=F)
+colnames(intcal13) <- c("BP","CRA","Error","D14C","Sigma")
+```
+
+# Figure 1 
+
+The code below compares the summed probability distribution (SPD) of three distinct geographic regions (Southern Levant, Sahara, and Brazil) using normalised calibrated dates. 
+
+First we read the datasets. Rcarbon already contains the first set, while the latter two have been stored in the `data` directory. 
+
+```{r}
+# Roberts, Neil, Jessie Woodbridge, Andrew Bevan, Alessio Palmisano, Stephen Shennan, and Eleni Asouti. “Human Responses and Non-Responses to Climatic Variations during the Last Glacial-Interglacial Transition in the Eastern Mediterranean.” Quaternary Science Reviews, Late Glacial to Early Holocene socio-ecological responses to climatic instability within the Mediterranean basin, 184 (March 15, 2018): 47–67. https://doi.org/10.1016/j.quascirev.2017.09.011.
+data(emedyd)
+southLevant <- subset(emedyd,Region=='1'&CRA<=17000&CRA>=8000)
+
+#Manning, Katie, and Adrian Timpson. “The Demographic Response to Holocene Climate Change in the Sahara.” Quaternary Science Reviews 101 (October 1, 2014): 28–35. https://doi.org/10.1016/j.quascirev.2014.07.003.
+sahara <- read.csv('./data/Manning_and_Timpson2014.csv',header=TRUE)
+sahara <- subset(sahara,Yrs.BP<=17000&Yrs.BP>=8000)
+
+#Bueno, Lucas, Adriana Schmidt Dias, and James Steele. “The Late Pleistocene/Early Holocene Archaeological Record in Brazil: A Geo-Referenced Database.” Quaternary International, A Late Pleistocene/early Holocene archaeological 14C database for Central and South America: palaeoenvironmental contexts and demographic interpretations, 301 (July 8, 2013): 74–93. https://doi.org/10.1016/j.quaint.2013.03.042.
+brazil <- read.csv('./data/Bueno_etal_2013.csv',header=TRUE)
+brazil <- subset(brazil,OccCRA<=17000&OccCRA>=8000)
+
+```
+
+Next we calibrate the dates. For the purpose of this figure no binning will be employed, and the dates will be immediately aggregated to generate the SPDs:
+
+<!-- are you ok with this? should we bin the dates? -->
+
+```{r}
+southlevant.x = calibrate(southLevant$CRA,southLevant$Error,normalised=T,verbose=F)
+southlevant.spd = spd(southlevant.x,timeRange=c(16000,9000),verbose=F)
+
+sahara.x = calibrate(sahara$Yrs.BP,sahara$STD,normalised=T,verbose=F)
+sahara.spd = spd(sahara.x,timeRange=c(16000,9000),verbose=F)
+
+brazil.x = calibrate(brazil$CRA,brazil$Error,normalised=T,verbose=F)
+brazil.spd = spd(brazil.x,timeRange=c(16000,9000),verbose=F)
+```
+
+
+We then visualise the SPD justaxaposing them to the calibration curve. The script below highlights regions with steeper 
+
+Plot and Compare
+```{r,fig.height=9,fig.width=4}
+par(mfrow=c(3,1))
+plot(southlevant.spd,fill.p=NA)
+rect(x=c(9509.948,10228.445,11241.710)+100,xright=c(9509.948,10228.445,11241.710)-100,ybottom=rep(-100,4),ytop=rep(100,4),border=NA,col='orange')
+plot(southlevant.spd,add=TRUE,fill.p='grey17')
+abline(v=c(9509.948,10228.445,11241.710)+100,lty=3,col='orange') #peak locations
+abline(v=c(9509.948,10228.445,11241.710)-100,lty=3,col='orange') #peak locations
+title(paste0("South Levant (n=",length(southlevant.x),")"))
+par(new=T)
+plot(intcal13$BP,intcal13$CRA,col="indianred",lwd=2,axes=F,xlab="",ylab="",type="l",ylim=c(8055,13295),xlim=c(16000,9000))
+
+plot(sahara.spd,fill.p=NA)
+rect(x=c(9509.948,10228.445,11241.710)+100,xright=c(9509.948,10228.445,11241.710)-100,ybottom=rep(-100,4),ytop=rep(100,4),border=NA,col='orange')
+plot(sahara.spd,add=TRUE,fill.p='grey17')
+abline(v=c(9509.948,10228.445,11241.710)+100,lty=3,col='orange') #peak locations
+abline(v=c(9509.948,10228.445,11241.710)-100,lty=3,col='orange') #peak locations
+title(paste0("Sahara (n=",length(sahara.x),")"))
+par(new=T)
+plot(intcal13$BP,intcal13$CRA,col="indianred",lwd=2,axes=F,xlab="",ylab="",type="l",ylim=c(8055,13295),xlim=c(16000,9000))
+
+
+plot(brazil.spd,fill.p=NA)
+rect(x=c(9509.948,10228.445,11241.710)+100,xright=c(9509.948,10228.445,11241.710)-100,ybottom=rep(-100,4),ytop=rep(100,4),border=NA,col='orange')
+plot(brazil.spd,add=TRUE,fill.p='grey17')
+title(paste0("Brazil (n=",length(brazil.x),")"))
+abline(v=c(9509.948,10228.445,11241.710)+100,lty=3,col='orange') #peak locations
+abline(v=c(9509.948,10228.445,11241.710)-100,lty=3,col='orange') #peak locations
+par(new=T)
+plot(intcal13$BP,intcal13$CRA,col="indianred",lwd=2,axes=F,xlab="",ylab="",type="l",ylim=c(8055,13295),xlim=c(16000,9000))
+```
+
+
+# Figure 2a
+<!-- option 1: compare smoothings -->
+
+The script below shows the use of rolling mean and composite kernel density estimate (CKDE) with different levels of smoothing factors (window size and kernal bandwith size) on the southern Levant dataset. 
+
+For the CKDE we need to first generate `nsim` random calendar dates from each calibrated probability distributions. We then feed this into the the `ckde()` function which generates a kernel density estimate from each simulation set. The resulting object can then be plotted with the standard `plot()` function.
+
+```{r}
+sl.dates=sampleDates(southlevant.x,nsim=1000,verbose=FALSE)
+ckde100=ckde(sl.dates,timeRange = c(16000,9000),bw = 100)
+ckde200=ckde(sl.dates,timeRange = c(16000,9000),bw = 200)
+ckde300=ckde(sl.dates,timeRange = c(16000,9000),bw = 300)
+```
+
+The script below compares the moving average function for SPDs to to the CKDE. 
+
+```{r,fig.width=10,fig.height=5}
+par(mfrow=c(2,3))
+plot(southlevant.spd,runm=100)
+title("SPD (100 yrs rolling average)")
+plot(southlevant.spd,runm=200)
+title("SPD (200 yrs rolling average)")
+plot(southlevant.spd,runm=300)
+title("SPD (300 yrs rolling average)")
+
+plot(ckde100,main="CKDE (100 years bandwidth)")
+plot(ckde200,main="CKDE (200 years bandwidth)")
+plot(ckde300,main="CKDE (300 years bandwidth)")
+```
+
+
+# Figure 2b
+<!-- option 2: just show CKDE -->
+
+The _rcarbon_ package requires two steps for generating CKDE (Composite Kernel Density Estimates). First we generate `nsim` random calendar dates from each calibrated probability distributions. We then feed this into the the `ckde()` function which computes a kernel density estimate from each simulation set with the user-defined bandwidth. The resulting object can then be plotted with the standard `plot()` function.
+
+```{r,fig.height=9,fig.width=4}
+sl.dates=sampleDates(southlevant.x,nsim=1000,verbose=FALSE)
+ckde100=ckde(sl.dates,timeRange = c(16000,9000),bw = 100)
+ckde200=ckde(sl.dates,timeRange = c(16000,9000),bw = 200)
+ckde300=ckde(sl.dates,timeRange = c(16000,9000),bw = 300)
+
+par(mfrow=c(3,1))
+plot(ckde100,type='multiline',main="CKDE South Levant (100 years bandwidth)")
+plot(ckde200,type='multiline',main="CKDE South Levant (200 years bandwidth)")
+plot(ckde300,type='multiline',main="CKDE South Levant (300 years bandwidth)")
+```
+
+
+
+
+# Figure 3
+
+The figure below compares the normalised (dotred line) and non-normalised (filled polygon) calibrated distributions. The area under the curve (auc) for the normalised distribution is equal to 1 in both cases, but the auc for non-normalised distribution is >1 for flatter portions of the calibration curve (left panel) and <1 for steeper portions of the calibration curve. 
+
+```{r,fig.width=7,fig.height=4}
+par(mfrow=c(1,2))
+x1 = calibrate(3523,45,normalised = F,verbose=F)
+plot(x1,type='auc',label='a')
+title(paste0("auc non-normalised:",round(sum(x1$grids$`1`$PrDens),3)))
+x2 = calibrate(4274,45,normalised = F,verbose=F)
+plot(x2,type='auc',label='b')
+title(paste0("auc non-normalised:",round(sum(x2$grids$`1`$PrDens),3)))
+```
+
+
+# Figure 4
+
+The cumulative impact of normalised and normalised dates can be evaluated by comparing the resulting SPDs. The code below compares the two versions for each of the three datasets showed in figure 1. 
+
+<!-- alternatively just show the emedyd -->
+
+```{r}
+southlevant.x2 = calibrate(southLevant$CRA,southLevant$Error,normalised=F,verbose=F)
+southlevant.spd2 = spd(southlevant.x2,timeRange=c(16000,9000),verbose=F)
+sahara.x2 = calibrate(sahara$Yrs.BP,sahara$STD,normalised=F,verbose=F)
+sahara.spd2 = spd(sahara.x2,timeRange=c(16000,9000),verbose=F)
+brazil.x2 = calibrate(brazil$CRA,brazil$Error,normalised=F,verbose=F)
+brazil.spd2 = spd(brazil.x2,timeRange=c(16000,9000),verbose=F)
+```
+
+```{r,fig.height=9,fig.width=4}
+par(mfrow=c(3,1))
+plot(southlevant.spd,spdnormalised=TRUE,fill.p='grey55')
+plot(southlevant.spd2,spdnormalised=TRUE,lwd=2,add=TRUE,type = 'simple')
+title("Southern Levant")
+plot(sahara.spd,spdnormalised=TRUE,fill.p = 'grey55')
+plot(sahara.spd2,spdnormalised=TRUE,add=TRUE,lwd=2,type = 'simple')
+title("Sahara")
+plot(brazil.spd,spdnormalised=TRUE,fill.p = 'grey55')
+plot(brazil.spd2,spdnormalised=TRUE,add=TRUE,lwd=2,type = 'simple')
+title("Brazil")
+legend("topleft",legend=c("Normalised","Not-Normalised"),col=c("grey55",1),lwd=c(15,2))
+```
+
+# Figure 5
+
+The script below compares OxCal's SUM function (executed via the _oxcAAR_ package) with `
+_rcarbon_'s `spd()` function. 
+
+```{r}
+# extract data
+data(emedyd)
+# rcarbon:
+emedyd <- emedyd[emedyd$Region=="1",]
+emedyd.dates = calibrate(emedyd$CRA,emedyd$Error,normalised=TRUE,verbose=FALSE)
+emedyd.spd = spd(emedyd.dates,spdnormalised = TRUE,timeRange=c(21000,8000),verbose=FALSE)
+
+# oxcal via oxcAAR
+library(oxcAAR)
+quickSetupOxcal()
+my_dates <- R_Date(southLevant$LabID, southLevant$CRA, southLevant$Error)
+my_sum <- oxcal_Sum(my_dates)
+my_result_file <- executeOxcalScript(my_sum)
+my_result_text <- readOxcalOutput(my_result_file)
+my_result_data <- parseFullOxcalOutput(my_result_text)
+res=my_result_data[nrow(southLevant)+3]
+
+n=length(res$`ocd[1]`$likelihood$prob) #number of probabilities
+PrDens=res$ocd[[6]][[8]]
+resolution=res$ocd[[6]][[7]]
+PrDens=PrDens/sum(PrDens)/resolution
+calBPs = res$ocd[[6]][[6]]+seq(from=0,by=resolution,length.out=n)-1950
+
+# Compute SPD in rcarbon using a wider timeRange to control edge effect
+southlevant.spd3 = spd(southlevant.x,verbose=F,timeRange=c(21000,8000))
+
+# Compare rcarbon and oxcal
+plot(southlevant.spd3,spdnormalised=T,xlim=c(21000,8000),fill.p = 'grey55')
+lines(abs(calBPs), PrDens,col="black",lty=1,lwd=1.5)
+legend("topleft",legend=c("rcarbon (normalised)","OxCal"),col=c("grey55","black"),lwd=c(15,1.5),lty=c(1,1))
+```
+
+
+# Figure 6
+
+The Bin-sensitivity analysis enables a visual inspection of multiple SPDs generated using different values for the parameter `h` in the binning function (`binPrep()`). High values of `h` will aggregate dates that are futher apart in time. The example below is a subset of Danish dates from the EUROEVOL database, with the binning carried out using median calibrated dates.   
+
+```{r,fig.height=4,fig.width=8}
+data(euroevol)
+denmark = subset(euroevol,Country=='Denmark'&C14Age<=8000&C14Age>3500)
+denmark.x = calibrate(denmark$C14Age,denmark$C14SD,normalised=F,verbose=F)
+binsense(x=denmark.x,y=denmark$SiteID,timeRange=c(8000,4000),verbose = F,h=seq(0,200,20),runm=200)
+```
+
+
+
+# Figure 7 
+
+The `calsample` method implemented using normalised and non-normalised dates. The method fails to emulate peaks in the SPD corresponding to the steeper portions of the calibration curve. 
+```{r}
+test.cal.nn = modelTest(southlevant.x2,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='calsample', normalised = FALSE,verbose=FALSE)
+
+test.cal.n = modelTest(southlevant.x,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='calsample', normalised = TRUE,verbose=FALSE)
+```
+
+```{r,fig.width=10,fig.height=4}
+par(mfrow=c(1,2))
+plot(test.cal.n,lwd.obs = 1.5)
+title('Calsample (Normalised Dates)')
+plot(test.cal.nn,lwd.obs = 1.5)
+title('Calsample (Non-Normalised Dates)')
+```
+
+# Figure 8
+The `uncalsample` method implemented using normalised and non-normalised dates. The method emulates the peaks in the SPD corresponding to the steeper portions of the calibration curve. 
+
+```{r}
+test.uncal.nn = modelTest(southlevant.x2,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='uncalsample', normalised = FALSE,verbose=FALSE)
+
+test.uncal.n = modelTest(southlevant.x,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='uncalsample', normalised = TRUE,verbose=FALSE)
+```
+
+```{r,fig.width=10,fig.height=4}
+par(mfrow=c(1,2))
+plot(test.uncal.n,lwd.obs = 1.5)
+title('Uncalsample (Normalised Dates)')
+plot(test.uncal.nn,lwd.obs = 1.5)
+title('Uncalsample (Non-Normalised Dates)')
+```
+
+
+# Figure 9
+
+An example of mark permutation test. The simulation envelope represents in this case the panregional model, notice how the width of the simulation envelope is positively correlated to the number of bins in each region.
+
+
+```{r,fig.height=9,fig.width=4}
+# prepare data and generate the panregional spd
+data(emedyd)
+alldates.emedyd = calibrate(x=emedyd$CRA, errors=emedyd$Error, calCurves='intcal13', normalised=FALSE,verbose=FALSE)
+bins = binPrep(sites=emedyd$SiteName, ages=emedyd$CRA, h=50)
+alldates.spd = spd(alldates.emedyd,bins=bins,timeRange=c(16000,9000),runm=200,spdnormalised=T,verbose=F)
+
+#execute the permutation test
+result = permTest(x=alldates.emedyd, bins=bins, marks=emedyd$Region, timeRange=c(16000,9000), runm=200,nsim=1000,spdnormalised=T,verbose=FALSE)
+
+# plot results
+par(mfrow=c(3,1))
+plot(result,focalm='1',lwd=2,main=paste0("Southern Levant (n.bins=",result$metadata[[1]][2],")"))
+plot(alldates.spd,add=T,type='simple',lty=2,col='grey27')
+plot(result,focalm='2',lwd=2,main=paste0("Northern Levant (n.bins=",result$metadata[[2]][2],")"))
+plot(alldates.spd,add=T,type='simple',lty=2,col='grey27')
+plot(result,focalm='3',lwd=2,main=paste0("South-central Anatolia (n.bins=",result$metadata[[3]][2],")"))
+plot(alldates.spd,add=T,type='simple',lty=2,col='grey27')
+```
+
+# Figure 10 
+<!-- placeholder for relative risk ratio -->
+
+# Figure 11 
+<!-- placeholder for spatial permutation test -->
+
+
