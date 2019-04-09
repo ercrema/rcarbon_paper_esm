@@ -1,7 +1,7 @@
 ---
-title: "Model-based inferences from large sets of radiocarbon dates: software and method - Electronic Supplementary Material"
+title: "Inferences from large sets of radiocarbon dates: software and method - Electronic Supplementary Material"
 author: "E.Crema"
-date: "14 November 2018"
+date: "9 April 2019"
 output: html_document
 ---
 
@@ -9,31 +9,42 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Introduction
+
+This document includes R scripts for generating all figures in the article _Inferences from large sets of radiocarbon dates: software and method_, as well as supplementary figures and their scripts.    
+
 # Setup
 
-<!--We should submit on CRAN before submitting the paper, or perhaps after review -->
+All analyses and figures require the installation of the _rcarbon_ package version <!-- specify version here --> and the download of several supporting data. To install _rcarbon_ type the following command in the R console:
+
+```{r,eval=FALSE}
+# install.packages('devtools') ## execute the line if devtools is not installed
+devtools::install_github("ahb108/rcarbon")
+```
+
+<!-- In case the package in submitted to CRAN -->
+<!-- ```{r,eval=FALSE}
+install.packages("rcarbon")
+``` -->
+
+Once the package is downloaded and instaled, load _rcarbon_ by typing:
 
 ```{r}
-#Install rcarbon
-#install.packages("rcarbon")
-#devtools::install_github("ahb108/rcarbon")
 library(rcarbon)
+```
 
+To reproduce the figures in the article the following data should be imported or loaded in R:
 
+<!-- consider renaming the columns in the CSV for consistency? -->
+<!-- calibration curve still needed? -->
+
+```{r}
 # Read Calibration Curve For Visualisation
 intcal13 <- read.csv('http://www.radiocarbon.org/IntCal13%20files/intcal13.14c', encoding="UTF-8",skip=11,header=F)
 colnames(intcal13) <- c("BP","CRA","Error","D14C","Sigma")
-```
 
-# Figure 1 
-
-The code below compares the summed probability distribution (SPD) of three distinct geographic regions (Southern Levant, Sahara, and Brazil) using normalised calibrated dates. 
-
-First we read the datasets. Rcarbon already contains the first set, while the latter two have been stored in the `data` directory. 
-
-```{r}
 # Roberts, Neil, Jessie Woodbridge, Andrew Bevan, Alessio Palmisano, Stephen Shennan, and Eleni Asouti. “Human Responses and Non-Responses to Climatic Variations during the Last Glacial-Interglacial Transition in the Eastern Mediterranean.” Quaternary Science Reviews, Late Glacial to Early Holocene socio-ecological responses to climatic instability within the Mediterranean basin, 184 (March 15, 2018): 47–67. https://doi.org/10.1016/j.quascirev.2017.09.011.
-data(emedyd)
+data(emedyd) # this is available within the rcarbon package
 southLevant <- subset(emedyd,Region=='1'&CRA<=17000&CRA>=8000)
 
 #Manning, Katie, and Adrian Timpson. “The Demographic Response to Holocene Climate Change in the Sahara.” Quaternary Science Reviews 101 (October 1, 2014): 28–35. https://doi.org/10.1016/j.quascirev.2014.07.003.
@@ -43,10 +54,73 @@ sahara <- subset(sahara,Yrs.BP<=17000&Yrs.BP>=8000)
 #Bueno, Lucas, Adriana Schmidt Dias, and James Steele. “The Late Pleistocene/Early Holocene Archaeological Record in Brazil: A Geo-Referenced Database.” Quaternary International, A Late Pleistocene/early Holocene archaeological 14C database for Central and South America: palaeoenvironmental contexts and demographic interpretations, 301 (July 8, 2013): 74–93. https://doi.org/10.1016/j.quaint.2013.03.042.
 brazil <- read.csv('./data/Bueno_etal_2013.csv',header=TRUE)
 brazil <- subset(brazil,OccCRA<=17000&OccCRA>=8000)
-
 ```
 
-Next we calibrate the dates. For the purpose of this figure no binning will be employed, and the dates will be immediately aggregated to generate the SPDs:
+<!-- Perhaps worth creating two sections, one for the figures in the article and one for the supplementary figures -->
+
+# Figures 
+
+
+## Figure 1
+<!-- placeholder -->
+
+## Figure 2
+<!-- updated version matching the current version of the manuscript as for 09042019 -->
+
+```{r,fig.width=10,fig.height=5}
+# Calibrate Dates
+southlevant.x = calibrate(southLevant$CRA,southLevant$Error,normalised=F,verbose=F)
+sahara.x = calibrate(sahara$Yrs.BP,sahara$STD,normalised=F,verbose=F)
+brazil.x = calibrate(brazil$CRA,brazil$Error,normalised=F,verbose=F)
+
+# Aggregate 
+southlevant.spd.nnorm = spd(southlevant.x,timeRange=c(16000,9000),verbose=F)
+sahara.spd.nnorm = spd(sahara.x,timeRange=c(16000,9000),verbose=F)
+brazil.spd.nnorm = spd(brazil.x,timeRange=c(16000,9000),verbose=F)
+
+southlevant.spd.norm = spd(southlevant.x,timeRange=c(16000,9000),verbose=F,datenormalised=T)
+sahara.spd.norm = spd(sahara.x,timeRange=c(16000,9000),verbose=F,datenormalised=T)
+brazil.spd.norm = spd(brazil.x,timeRange=c(16000,9000),verbose=F,datenormalised=T)
+
+
+#plot
+fmat=matrix(c(rep(1,3),rep(2,3),rep(3:5,each=2)),nrow=6,ncol=2)
+layout(fmat,widths=c(0.4,0.8),heights=c(rep(1,6)))
+
+
+x1 = calibrate(3523,45,normalised = F,verbose=F)
+plot(x1,type='auc')
+#title(paste0("auc non-normalised:",round(sum(x1$grids$`1`$PrDens),3)))
+title("a")
+x2 = calibrate(4274,45,normalised = F,verbose=F)
+plot(x2,type='auc')
+#title(paste0("auc non-normalised:",round(sum(x2$grids$`1`$PrDens),3)))
+title("b")
+
+par(mar=c(4,4,3,1))
+plot(southlevant.spd.norm,fill.p='bisque3',ylim=c(0,0.4))
+plot(southlevant.spd.nnorm,type = 'simple',add=TRUE)
+title("c")
+
+par(mar=c(4,4,3,1))
+plot(sahara.spd.norm,fill.p='bisque3',ylim=c(0,0.4))
+plot(sahara.spd.nnorm,type = 'simple',add=TRUE)
+title("d")
+
+par(mar=c(4,4,3,1))
+plot(brazil.spd.nnorm,fill.p='bisque3',ylim=c(0,0.125))
+plot(brazil.spd.norm,type = 'simple',add=TRUE)
+title("e")
+legend("topleft",legend=c("Normalised SPD","Not normalised SPD"),col=c('bisque3','black'),lwd=c(3,1))
+```
+
+
+<!-- The script below is deprecated -->
+## Figure 2 
+
+The code below compares the summed probability distribution (SPD) of three distinct geographic regions (Southern Levant, Sahara, and Brazil) using normalised calibrated dates. 
+
+First we calibrate the dates. For the purpose of this figure no binning will be employed, and the dates are be immediately aggregated to generate the SPDs:
 
 <!-- are you ok with this? should we bin the dates? -->
 
@@ -61,10 +135,8 @@ brazil.x = calibrate(brazil$CRA,brazil$Error,normalised=T,verbose=F)
 brazil.spd = spd(brazil.x,timeRange=c(16000,9000),verbose=F)
 ```
 
+We then visualise the SPD justaxaposing them to the calibration curve. The script below highlights time intervals where the curve is steeper and hence more likely to cause peaks in the SPD:
 
-We then visualise the SPD justaxaposing them to the calibration curve. The script below highlights regions with steeper 
-
-Plot and Compare
 ```{r,fig.height=9,fig.width=4}
 par(mfrow=c(3,1))
 plot(southlevant.spd,fill.p=NA)
@@ -97,10 +169,14 @@ plot(intcal13$BP,intcal13$CRA,col="indianred",lwd=2,axes=F,xlab="",ylab="",type=
 ```
 
 
-# Figure 2a
-<!-- option 1: compare smoothings -->
 
-The script below shows the use of rolling mean and composite kernel density estimate (CKDE) with different levels of smoothing factors (window size and kernal bandwith size) on the southern Levant dataset. 
+
+<!-- two possible options for figure 2 below -->
+
+<!-- option A-->
+## Figure 2
+
+The script below shows the use of rolling mean and composite kernel density estimate (CKDE) to reduce the effect of artifical spikes in the SPD of the southern Levant dataset. 
 
 For the CKDE we need to first generate `nsim` random calendar dates from each calibrated probability distributions. We then feed this into the the `ckde()` function which generates a kernel density estimate from each simulation set. The resulting object can then be plotted with the standard `plot()` function.
 
@@ -111,9 +187,10 @@ ckde200=ckde(sl.dates,timeRange = c(16000,9000),bw = 200)
 ckde300=ckde(sl.dates,timeRange = c(16000,9000),bw = 300)
 ```
 
-The script below compares the moving average function for SPDs to to the CKDE. 
+The plot method for `CalSPD` class objects (the output of the `spd()` function) has a dedicated argument `runm` which enables users to specify the window size of the moving average. 
 
 ```{r,fig.width=10,fig.height=5}
+# Moving Windows with 100,200 and 300 years:
 par(mfrow=c(2,3))
 plot(southlevant.spd,runm=100)
 title("SPD (100 yrs rolling average)")
@@ -122,6 +199,7 @@ title("SPD (200 yrs rolling average)")
 plot(southlevant.spd,runm=300)
 title("SPD (300 yrs rolling average)")
 
+# CKDE with 100,200, 300 years bandwidth:
 plot(ckde100,main="CKDE (100 years bandwidth)")
 plot(ckde200,main="CKDE (200 years bandwidth)")
 plot(ckde300,main="CKDE (300 years bandwidth)")
@@ -389,7 +467,8 @@ plot(res,index=1,option="test",add=TRUE,legend=TRUE,legSize=0.8,location="toplef
 ```
 
 
+# Supplementary Figures
 
-
+<!-- move here code and scripts of supplementary figures -->
 
 
