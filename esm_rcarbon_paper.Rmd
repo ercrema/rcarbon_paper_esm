@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Setup
 
 <!--We should submit on CRAN before submitting the paper, or perhaps after review -->
+
 ```{r}
 #Install rcarbon
 #install.packages("rcarbon")
@@ -164,7 +165,7 @@ title(paste0("auc non-normalised:",round(sum(x2$grids$`1`$PrDens),3)))
 
 # Figure 4
 
-The cumulative impact of normalised and normalised dates can be evaluated by comparing the resulting SPDs. The code below compares the two versions for each of the three datasets showed in figure 1. 
+The cumulative impact of normalised and normalised dates can be evaluated by comparing the SPDs resulting from each approach to calibration. The code below does this for each of the three datasets showed in figure 1. 
 
 <!-- alternatively just show the emedyd -->
 
@@ -232,11 +233,10 @@ lines(sumCal$calBP,sumCal$PrDens,col="red",type="l",lwd=1,lty=2)
 
 # Figure 6
 
-The script below compares OxCal's SUM function (executed via the _oxcAAR_ package) with `
-_rcarbon_'s `spd()` function. 
+The script below compares OxCal's SUM function (executed via the _oxcAAR_ package) with rcarbon's `spd()` function. 
 
 ```{r}
-# oxcal via oxcAAR
+ ## oxcal via oxcAAR
 library(oxcAAR)
 quickSetupOxcal()
 my_dates <- R_Date(southLevant$LabID, southLevant$CRA, southLevant$Error)
@@ -252,10 +252,10 @@ resolution=res$ocd[[6]][[7]]
 PrDens=PrDens/sum(PrDens)/resolution
 calBPs = res$ocd[[6]][[6]]+seq(from=0,by=resolution,length.out=n)-1950
 
-# Compute SPD in rcarbon using a wider timeRange to control edge effect
+ ## Compute SPD in rcarbon using a wider timeRange to control edge effect
 southlevant.spd3 = spd(southlevant.x,verbose=F,timeRange=c(21000,8000))
 
-# Compare rcarbon and oxcal
+ ## Compare rcarbon and oxcal
 plot(southlevant.spd3,spdnormalised=T,xlim=c(21000,8000),fill.p = 'grey55')
 lines(abs(calBPs), PrDens,col="red",lty=1,lwd=1.5)
 legend("topleft",legend=c("rcarbon (normalised)","OxCal"),col=c("grey55","red"),lwd=c(15,1.5),lty=c(1,1))
@@ -278,6 +278,7 @@ binsense(x=denmark.x,y=denmark$SiteID,timeRange=c(8000,4000),verbose = F,h=seq(0
 # Figure 8 
 
 The `calsample` method implemented using normalised and non-normalised dates. The method fails to emulate peaks in the SPD corresponding to the steeper portions of the calibration curve. 
+
 ```{r}
 test.cal.nn = modelTest(southlevant.x2,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='calsample', normalised = FALSE,verbose=FALSE)
 
@@ -310,7 +311,7 @@ title('Uncalsample (Non-Normalised Dates)')
 ```
 
 
-# Figure 9
+# Figure 10
 
 An example of mark permutation test. The simulation envelope represents in this case the panregional model, notice how the width of the simulation envelope is positively correlated to the number of bins in each region.
 
@@ -335,7 +336,7 @@ plot(result,focalm='3',lwd=2,main=paste0("South-central Anatolia (n.bins=",resul
 plot(alldates.spd,add=T,type='simple',lty=2,col='grey27')
 ```
 
-# Figure 10 
+# Figure 11 
 ```{r,fig.height=2.5,fig.width=8}
 ## Example with a subset of English and Welsh dates from the Euroevol dataset
 data(ewdates)
@@ -343,66 +344,52 @@ data(ewowin)
 x <- calibrate(x=ewdates$C14Age, errors=ewdates$C14SD, normalised=FALSE)
 ## Create centennial timeslices (also with site binning)
 bins1 <- binPrep(sites=ewdates$SiteID, ages=ewdates$C14Age, h=50)
-stkde1 <- stkde(x=x, coords=ewdates[,c("Eastings", "Northings")], win=ewowin, sbw=40000, cellres=2000, focalyears=seq(6500, 5000, -100), tbw=50, bins=bins1, backsight=200, outdir="im")
-## Plot an example of all four basic outputs for 5900 calBP
+stkde1 <- stkde(x=x, coords=ewdates[,c("Eastings", "Northings")], win=ewowin, sbw=40000, cellres=2000, focalyears=seq(6500, 5000, -100), tbw=100, bins=bins1, backsight=200, outdir="im",amount=1)
+## Plot an example of all four basic outputs for 6000 calBP
 par(mar=c(0.5, 0.5, 2.5, 2))
-plot(stkde1, 5900, type="all")
+plot(stkde1, 6000, type="all")
 ```
 
 
-# Figure 11 
+# Figure 12 
 
-```{r}
+```{r,fig.height=5,fig.width=8}
 library(maptools)
-library(rcarbon)
 data(ewdates)
-sites <- unique(data.frame(id=ewdates$SiteID,x=ewdates$Eastings,y=ewdates$Northings))
-rownames(sites) <- sites$id
-data(euroevol)
-gb=subset(euroevol,Country=="Great Britain")
-sites2 <- unique(data.frame(id=gb$SiteID,lon=gb$Longitude,lat=gb$Latitude))
-sites2 <- subset(sites2,id%in%unique(ewdates$SiteID))
-sp::coordinates(sites2) <- c("lon","lat")
-sp::proj4string(sites2) <- sp::CRS("+proj=longlat +datum=WGS84")
-sites3 <- spTransform(sites2, CRS("+init=epsg:27700"))
-sites4=as.data.frame(sites3)
-sites5=merge(ewdates,sites4,by.x="SiteID",by.y="id")
-sites5$Eastings=sites5$lon
-sites5$Northings=sites5$lat
-sites5= sites5[,1:8]
-ewdates =sites5
-
 x <- calibrate(x=ewdates$C14Age, errors=ewdates$C14SD, normalised=FALSE)
 bins1 <- binPrep(sites=ewdates$SiteID, ages=ewdates$C14Age, h=50)
 
+# Create SpatialPoints
 sites <- unique(data.frame(id=ewdates$SiteID,east=ewdates$Eastings,north=ewdates$Northings))
 rownames(sites) <- sites$id
 sites <- sites[,-1]
-
-# Convert to a SpatialPoints class object:
 sp::coordinates(sites) <- c("east","north")
 sp::proj4string(sites) <- sp::CRS("+init=epsg:27700")
 
 #Compute distance matrix
 d <- sp::spDists(sites,sites,longlat=FALSE)
-#Compute spatial weights (distances should be in km)
-w <- spweights(d/1000,h=100)
+#Compute spatial weights 
+w <- spweights(d/1000,h=40)
 # Define blocks
-breaks <- seq(7000,5000,-500) #500 year blocks (try different values and single block)
+breaks <- seq(6300,5900,-200) 
 
 # Spatial Permutation Test
-res <- sptest(calDates=x,bins=bins1,timeRange=c(7000,5000),locations=sites,permute="locations",nsim=1000,breaks=breaks,spatialweights=w,ncores=1) 
-
-par(mar=c(1,1,4,1),mfrow=c(1,2))
+res <- sptest(calDates=x,bins=bins1,timeRange=c(6300,5900),locations=sites,permute="locations",nsim=1000,breaks=breaks,spatialweights=w,ncores=1) 
+# Plot Results
+par(mar=c(1,1,1,1),mfrow=c(1,2))
 base=as(ewowin,"SpatialPolygons")
 sp::proj4string(base) <- sp::CRS("+init=epsg:27700")
+xlim = bbox(base)[1,]
+ylim = bbox(base)[2,]
+xlim[1] = xlim[1]-100000
+plot(base,col="antiquewhite3",border="antiquewhite3",xlim=xlim,ylim=ylim)
+plot(res,index=1,option="raw",add=TRUE,legend=TRUE,legSize=0.8,location="topleft",baseSize=0.9)
+plot(base,col="antiquewhite3",border="antiquewhite3",xlim=xlim)
+plot(res,index=1,option="test",add=TRUE,legend=TRUE,legSize=0.8,location="topleft",baseSize=0.9)
+```
 
-plot(base,col="antiquewhite3",border="antiquewhite3")
-plot(res,index=2,option="raw",add=TRUE,legend=TRUE,legSize=0.7,location="topleft")
 
-## Geometric Growth Rate for Transition 4
-plot(base,col="antiquewhite3",border="antiquewhite3")
-plot(res,index=2,option="test",add=TRUE,legend=TRUE,legSize=0.7,location="topleft")
+
 
 
 
