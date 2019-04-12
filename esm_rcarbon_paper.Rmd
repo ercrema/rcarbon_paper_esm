@@ -62,7 +62,71 @@ brazil <- subset(brazil,OccCRA<=17000&OccCRA>=8000)
 
 
 ## Figure 1
-<!-- placeholder -->
+<!-- Not yet checked wiht the knitted version -->
+```{r,fig.width=6,fig.height=7}
+data(euroevol)
+grimes <- euroevol[grepl("S2072", euroevol$SiteID),]
+grimesc <- calibrate(x=grimes$C14Age, errors=grimes$C14SD, ids=grimes$C14ID, normalised=FALSE)
+workingstartBP <- 7500
+workingendBP <- 2500
+gspd0 <- spd(x=grimesc, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE)
+threedates <- grimes[grimes$LabCode %in% c("BM-1022","BM-1033","BM-1066"),]
+threedatesc <- calibrate(x=threedates$C14Age, errors=threedates$C14SD, ids=threedates$C14ID, normalised=FALSE)
+
+## Thinned version
+n <- 10
+inds <- thinDates(ages=grimes$C14Age,errors=grimes$C14SD,grimes$SiteID,size=n,method="random", seed=99)
+grimesthin <- grimes[inds,]
+grimesthinc <- calibrate(x=grimesthin$C14Age, errors=grimesthin$C14SD, ids=grimesthin$C14ID, normalised=FALSE)
+gspdthin <- spd(x=grimesthinc, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE)
+
+## Binned version
+bins50 <- binPrep(sites=grimes$SiteID, ages=grimes$C14Age, h=50)
+bins100 <- binPrep(sites=grimes$SiteID, ages=grimes$C14Age, h=100)
+bins200 <- binPrep(sites=grimes$SiteID, ages=grimes$C14Age, h=200)
+gspd50 <- spd(x=grimesc, bins=bins50, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE)
+gspd100<- spd(x=grimesc, bins=bins100, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE)
+gspd200 <- spd(x=grimesc, bins=bins200, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE)
+
+## I think we should add a proper 'add=TRUE' option to the basic plot.CalDates so the fiddling with polygons below is not necessary, it could work only off type=simple, for instance.
+dev.new(device=pdf, width=6, height=7)
+layout(matrix(c(1,1,2,3,4,5), 3, 2, byrow=TRUE), widths=c(3,3), heights=c(3,2,2))
+par(mar=c(4, 4, 1, 0.5)) #c(bottom, left, top, right)
+plot(gspd0, calendar="BCAD", fill.p="chocolate1")
+plot(gspd0, runm=50, calendar="BCAD", add=TRUE, fill.p=NA, border="chocolate4")
+xs <- c(BPtoBCAD(threedatesc$grids[[1]]$calBP), rev(BPtoBCAD(threedatesc$grids[[1]]$calBP)))
+ys <- c(threedatesc$grids[[1]]$PrDens, rep(0,length(threedatesc$grids[[1]]$PrDens)))
+polygon(xs,ys, col="black", border=NA)
+xs <- c(BPtoBCAD(threedatesc$grids[[2]]$calBP), rev(BPtoBCAD(threedatesc$grids[[2]]$calBP)))
+ys <- c(threedatesc$grids[[2]]$PrDens, rep(0,length(threedatesc$grids[[2]]$PrDens)))
+polygon(xs,ys, col="black", border=NA)
+xs <- c(BPtoBCAD(threedatesc$grids[[3]]$calBP), rev(BPtoBCAD(threedatesc$grids[[3]]$calBP)))
+ys <- c(threedatesc$grids[[3]]$PrDens, rep(0,length(threedatesc$grids[[3]]$PrDens)))
+polygon(xs,ys, col="black", border=NA)
+legend("topleft", bty="n", col=c("chocolate1","chocolate4","black"), legend=c("raw SPD", "smoothed (50-yr running mean)", "3 example dates"), lwd=c(5,1,5), cex=0.8)
+text(-5400, 0.02, "a", font=2)
+par(mar=c(0.5, 3, 0.5, 0.5)) #c(bottom, left, top, right)
+plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="white", spdnormalised=TRUE)
+plot(gspdthin, xaxt="n", yaxt="n", runm=50, fill.p="aquamarine", spdnormalised=TRUE, add=TRUE)
+plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="chocolate4", spdnormalised=TRUE, add=TRUE)
+legend("topleft", bty="n", col=c("chocolate4","aquamarine"), legend=c("original SPD", paste("Thinned to ", nrow(grimesthin), " random dates", sep="")), lwd=c(1,5), cex=0.8)
+text(7200, 0.00015, "b", font=2)
+plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="white", spdnormalised=TRUE)
+plot(gspd50, xaxt="n", yaxt="n", runm=50, fill.p="bisque3", spdnormalised=TRUE, add=TRUE)
+plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="chocolate4", spdnormalised=TRUE, add=TRUE)
+legend("topleft", bty="n", col=c("chocolate4","bisque3"), legend=c("original SPD", "50 year bins"), lwd=c(1,5), cex=0.8)
+text(7200, 0.00015, "c", font=2)
+plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="white", spdnormalised=TRUE)
+plot(gspd100, xaxt="n", yaxt="n", runm=50, fill.p="bisque3", spdnormalised=TRUE, add=TRUE)
+plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="chocolate4", spdnormalised=TRUE, add=TRUE)
+legend("topleft", bty="n", col=c("chocolate4","bisque3"), legend=c("original SPD", "100 year bins"), lwd=c(1,5), cex=0.8)
+text(7200, 0.00015, "d", font=2)
+plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="white", spdnormalised=TRUE)
+plot(gspd200, xaxt="n", yaxt="n", runm=50, fill.p="bisque3", spdnormalised=TRUE, add=TRUE)
+plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="chocolate4", spdnormalised=TRUE, add=TRUE)
+legend("topleft", bty="n", col=c("chocolate4","bisque3"), legend=c("original SPD", "200 year bins"), lwd=c(1,5), cex=0.8)
+text(7200, 0.00015, "e", font=2)
+```
 
 ## Figure 2
 <!-- updated version matching the current version of the manuscript as for 09042019 -->
