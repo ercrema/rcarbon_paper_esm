@@ -27,7 +27,7 @@ devtools::install_github("ahb108/rcarbon")
 install.packages("rcarbon")
 ``` -->
 
-Once the package is downloaded and instaled, load _rcarbon_ by typing:
+Once the package is downloaded and installed, load _rcarbon_ by typing:
 
 ```{r}
 library(rcarbon)
@@ -35,30 +35,10 @@ library(rcarbon)
 
 To reproduce the figures in the article the following data should be imported or loaded in R:
 
-<!-- consider renaming the columns in the CSV for consistency? -->
-<!-- calibration curve still needed? -->
-
-```{r}
-# Read Calibration Curve For Visualisation
-intcal13 <- read.csv('http://www.radiocarbon.org/IntCal13%20files/intcal13.14c', encoding="UTF-8",skip=11,header=F)
-colnames(intcal13) <- c("BP","CRA","Error","D14C","Sigma")
-
-# Roberts, Neil, Jessie Woodbridge, Andrew Bevan, Alessio Palmisano, Stephen Shennan, and Eleni Asouti. “Human Responses and Non-Responses to Climatic Variations during the Last Glacial-Interglacial Transition in the Eastern Mediterranean.” Quaternary Science Reviews, Late Glacial to Early Holocene socio-ecological responses to climatic instability within the Mediterranean basin, 184 (March 15, 2018): 47–67. https://doi.org/10.1016/j.quascirev.2017.09.011.
-data(emedyd) # this is available within the rcarbon package
-southLevant <- subset(emedyd,Region=='1'&CRA<=17000&CRA>=8000)
-
-#Manning, Katie, and Adrian Timpson. “The Demographic Response to Holocene Climate Change in the Sahara.” Quaternary Science Reviews 101 (October 1, 2014): 28–35. https://doi.org/10.1016/j.quascirev.2014.07.003.
-sahara <- read.csv('./data/Manning_and_Timpson2014.csv',header=TRUE)
-sahara <- subset(sahara,Yrs.BP<=17000&Yrs.BP>=8000)
-
-#Bueno, Lucas, Adriana Schmidt Dias, and James Steele. “The Late Pleistocene/Early Holocene Archaeological Record in Brazil: A Geo-Referenced Database.” Quaternary International, A Late Pleistocene/early Holocene archaeological 14C database for Central and South America: palaeoenvironmental contexts and demographic interpretations, 301 (July 8, 2013): 74–93. https://doi.org/10.1016/j.quaint.2013.03.042.
-brazil <- read.csv('./data/Bueno_etal_2013.csv',header=TRUE)
-brazil <- subset(brazil,OccCRA<=17000&OccCRA>=8000)
-```
-
 <!-- Perhaps worth creating two sections, one for the figures in the article and one for the supplementary figures -->
+<!-- AB: Or we can put them all together...presumably we will just submit a zip file with the raw data and Rmd file, but no html/pdf?-->
 
-# Figures 
+# Main Article Figures 
 
 
 ## Figure 1
@@ -129,29 +109,58 @@ text(7200, 0.00015, "e", font=2)
 ```
 
 ## Figure 2
+
+<!-- consider renaming the columns in the CSV for consistency? -->
+<!-- consider removing undrscores from brazil sitenames in csv -->
+<!-- calibration curve still needed? -->
+
+The code below compares the summed probability distribution (SPD) of three distinct geographic regions (Southern Levant, Sahara, and Brazil) using normalised calibrated dates. 
+
+First we calibrate the dates. For the purpose of this figure no binning will be employed, and the dates are be immediately aggregated to generate the SPDs:
+
+```{r}
+# Read Calibration Curve For Visualisation
+intcal13 <- read.csv('http://www.radiocarbon.org/IntCal13%20files/intcal13.14c', encoding="UTF-8",skip=11,header=F)
+colnames(intcal13) <- c("BP","CRA","Error","D14C","Sigma")
+
+# Roberts, Neil, Jessie Woodbridge, Andrew Bevan, Alessio Palmisano, Stephen Shennan, and Eleni Asouti. “Human Responses and Non-Responses to Climatic Variations during the Last Glacial-Interglacial Transition in the Eastern Mediterranean.” Quaternary Science Reviews, Late Glacial to Early Holocene socio-ecological responses to climatic instability within the Mediterranean basin, 184 (March 15, 2018): 47–67. https://doi.org/10.1016/j.quascirev.2017.09.011.
+data(emedyd) # this is available within the rcarbon package
+southLevant <- subset(emedyd,Region=='1'&CRA<=17000&CRA>=8000)
+
+#Manning, Katie, and Adrian Timpson. “The Demographic Response to Holocene Climate Change in the Sahara.” Quaternary Science Reviews 101 (October 1, 2014): 28–35. https://doi.org/10.1016/j.quascirev.2014.07.003.
+sahara <- read.csv('./data/Manning_and_Timpson2014.csv',header=TRUE)
+sahara <- subset(sahara,Yrs.BP<=17000&Yrs.BP>=8000)
+
+#Bueno, Lucas, Adriana Schmidt Dias, and James Steele. “The Late Pleistocene/Early Holocene Archaeological Record in Brazil: A Geo-Referenced Database.” Quaternary International, A Late Pleistocene/early Holocene archaeological 14C database for Central and South America: palaeoenvironmental contexts and demographic interpretations, 301 (July 8, 2013): 74–93. https://doi.org/10.1016/j.quaint.2013.03.042.
+brazil <- read.csv('./data/Bueno_etal_2013.csv',header=TRUE)
+brazil <- subset(brazil,OccCRA<=17000&OccCRA>=8000)
+```
 <!-- updated version matching the current version of the manuscript as for 09042019 -->
 
-```{r,fig.width=10,fig.height=5}
-# Calibrate Dates
+```{r}
+## Calibrate Dates
 southlevant.x = calibrate(southLevant$CRA,southLevant$Error,normalised=F,verbose=F)
 sahara.x = calibrate(sahara$Yrs.BP,sahara$STD,normalised=F,verbose=F)
 brazil.x = calibrate(brazil$CRA,brazil$Error,normalised=F,verbose=F)
 
-# Aggregate 
-southlevant.spd.nnorm = spd(southlevant.x,timeRange=c(16000,9000),verbose=F)
-sahara.spd.nnorm = spd(sahara.x,timeRange=c(16000,9000),verbose=F)
-brazil.spd.nnorm = spd(brazil.x,timeRange=c(16000,9000),verbose=F)
+## Minimal binning to control for sites with many dates.
+southlevant.bins <- binPrep(sites=southLevant$SiteName, ages=southLevant$CRA, h=50)
+sahara.bins <- binPrep(sites=sahara$Sitename, ages=sahara$Yrs.BP, h=50)
+brazil$SiteName <- sub("_","",brazil$SiteName) ##can we fix this in the csv?
+brazil.bins <- binPrep(sites=brazil$SiteName, ages=brazil$CRA, h=50)
 
-southlevant.spd.norm = spd(southlevant.x,timeRange=c(16000,9000),verbose=F,datenormalised=T)
-sahara.spd.norm = spd(sahara.x,timeRange=c(16000,9000),verbose=F,datenormalised=T)
-brazil.spd.norm = spd(brazil.x,timeRange=c(16000,9000),verbose=F,datenormalised=T)
-
-
-#plot
+## Aggregate 
+southlevant.spd.nnorm = spd(southlevant.x, bins=southlevant.bins, timeRange=c(16000,9000),verbose=F)
+sahara.spd.nnorm = spd(sahara.x, bins=sahara.bins, timeRange=c(16000,9000),verbose=F)
+brazil.spd.nnorm = spd(brazil.x, bins=brazil.bins, timeRange=c(16000,9000),verbose=F)
+southlevant.spd.norm = spd(southlevant.x, bins=southlevant.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
+sahara.spd.norm = spd(sahara.x, bins=sahara.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
+brazil.spd.norm = spd(brazil.x, bins=brazil.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
+```
+```{r,fig.width=10,fig.height=5}
+## Plot
 fmat=matrix(c(rep(1,3),rep(2,3),rep(3:5,each=2)),nrow=6,ncol=2)
-layout(fmat,widths=c(0.4,0.8),heights=c(rep(1,6)))
-
-
+layout(fmat,widths=c(0.4,0.8),heights=c(1.2,1,0.8,0.8,1,1.2))
 x1 = calibrate(3523,45,normalised = F,verbose=F)
 plot(x1,type='auc')
 #title(paste0("auc non-normalised:",round(sum(x1$grids$`1`$PrDens),3)))
@@ -160,33 +169,38 @@ x2 = calibrate(4274,45,normalised = F,verbose=F)
 plot(x2,type='auc')
 #title(paste0("auc non-normalised:",round(sum(x2$grids$`1`$PrDens),3)))
 title("b")
-
-par(mar=c(4,4,3,1))
-plot(southlevant.spd.norm,fill.p='bisque3',ylim=c(0,0.4))
-plot(southlevant.spd.nnorm,type = 'simple',add=TRUE)
+par(yaxs="i")
+par(xaxs="i")
+par(mar=c(0,6,6,1)) # c(bottom, left, top, right)
+plot(southlevant.spd.nnorm,fill.p=NA, xlim=c(14000,9000), ylim=c(0,0.25), xaxt="n")
+rect(x=c(9509.948,10228.445,11241.710,12690)+100,xright=c(9509.948,10228.445,11241.710,12690)-100,ybottom=rep(-100,4),ytop=rep(100,5),border=NA,col='orange')
+plot(southlevant.spd.nnorm,fill.p='bisque3',ylim=c(0,0.25), xaxt="n", add=TRUE)
+plot(southlevant.spd.norm,type='simple', xaxt="n",add=TRUE)
+lines(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"BP"],reScale(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"CRA"])*par('usr')[4],col="red",lwd=2)
+legend("topleft",legend=c("Unnormalised SPD","Normalised SPD", "IntCal13","Areas with spikes"),col=c('bisque3','black',"red","orange"),lwd=c(5,1,1,5))
 title("c")
-
-par(mar=c(4,4,3,1))
-plot(sahara.spd.norm,fill.p='bisque3',ylim=c(0,0.4))
-plot(sahara.spd.nnorm,type = 'simple',add=TRUE)
+par(mar=c(0,6,0,1))
+plot(sahara.spd.nnorm,fill.p=NA, xlim=c(14000,9000), ylim=c(0,0.35), xaxt="n")
+rect(x=c(9509.948,10228.445,11241.710,12690)+100,xright=c(9509.948,10228.445,11241.710,12690)-100,ybottom=rep(-100,4),ytop=rep(100,5),border=NA,col='orange')
+plot(sahara.spd.nnorm,fill.p='bisque3',ylim=c(0,0.35), xaxt="n", add=TRUE)
+plot(sahara.spd.norm,type = 'simple', xaxt="n",add=TRUE)
+lines(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"BP"],reScale(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"CRA"])*par('usr')[4],col="red",lwd=2)
 title("d")
-
-par(mar=c(4,4,3,1))
-plot(brazil.spd.nnorm,fill.p='bisque3',ylim=c(0,0.125))
-plot(brazil.spd.norm,type = 'simple',add=TRUE)
+par(mar=c(6,6,0,1))
+plot(brazil.spd.nnorm,fill.p=NA, xlim=c(14000,9000), ylim=c(0,0.125), xaxt="n")
+rect(x=c(9509.948,10228.445,11241.710,12690)+100,xright=c(9509.948,10228.445,11241.710,12690)-100,ybottom=rep(-100,4),ytop=rep(100,5),border=NA,col='orange')
+plot(brazil.spd.nnorm,fill.p='bisque3',ylim=c(0,0.125), xaxt="n", add=TRUE)
+plot(brazil.spd.norm,type = 'simple', xaxt="n", add=TRUE)
+axis(side=1, at=seq(14000,9000,-1000), labels=seq(14000,9000,-1000), las=2, cex.axis=0.7)
+lines(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"BP"],reScale(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"CRA"])*par('usr')[4],col="red",lwd=2)
 title("e")
-legend("topleft",legend=c("Normalised SPD","Not normalised SPD"),col=c('bisque3','black'),lwd=c(3,1))
 ```
 
 
 <!-- The script below is deprecated -->
 ## Figure 2 
 
-The code below compares the summed probability distribution (SPD) of three distinct geographic regions (Southern Levant, Sahara, and Brazil) using normalised calibrated dates. 
-
-First we calibrate the dates. For the purpose of this figure no binning will be employed, and the dates are be immediately aggregated to generate the SPDs:
-
-<!-- are you ok with this? should we bin the dates? -->
+The code below compares the summed probability distribution (SPD) of three distinct geographic regions (Southern Levant, Sahara, and Brazil) using normalised and unnormalised calibrated dates. 
 
 ```{r}
 southlevant.x = calibrate(southLevant$CRA,southLevant$Error,normalised=T,verbose=F)
