@@ -46,56 +46,61 @@ To reproduce the figures in the article the following data should be imported or
 ```{r,fig.width=6,fig.height=7}
 data(euroevol)
 grimes <- euroevol[grepl("S2072", euroevol$SiteID),]
-grimesc <- calibrate(x=grimes$C14Age, errors=grimes$C14SD, ids=grimes$C14ID, normalised=FALSE)
+grimesc <- calibrate(x=grimes$C14Age, errors=grimes$C14SD, ids=grimes$C14ID, normalised=FALSE,verbose = FALSE)
 workingstartBP <- 7500
 workingendBP <- 2500
-gspd0 <- spd(x=grimesc, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE)
+gspd0 <- spd(x=grimesc, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE,verbose = FALSE)
 threedates <- grimes[grimes$LabCode %in% c("BM-1022","BM-1033","BM-1066"),]
-threedatesc <- calibrate(x=threedates$C14Age, errors=threedates$C14SD, ids=threedates$C14ID, normalised=FALSE)
+threedatesc <- calibrate(x=threedates$C14Age, errors=threedates$C14SD, ids=threedates$C14ID, normalised=FALSE,verbose=FALSE)
 
 ## Thinned version
 n <- 10
 inds <- thinDates(ages=grimes$C14Age,errors=grimes$C14SD,grimes$SiteID,size=n,method="random", seed=99)
 grimesthin <- grimes[inds,]
-grimesthinc <- calibrate(x=grimesthin$C14Age, errors=grimesthin$C14SD, ids=grimesthin$C14ID, normalised=FALSE)
-gspdthin <- spd(x=grimesthinc, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE)
+grimesthinc <- calibrate(x=grimesthin$C14Age, errors=grimesthin$C14SD, ids=grimesthin$C14ID, normalised=FALSE,verbose = FALSE)
+gspdthin <- spd(x=grimesthinc, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE,verbose = FALSE)
 
 ## Binned version
 bins50 <- binPrep(sites=grimes$SiteID, ages=grimes$C14Age, h=50)
 bins100 <- binPrep(sites=grimes$SiteID, ages=grimes$C14Age, h=100)
 bins200 <- binPrep(sites=grimes$SiteID, ages=grimes$C14Age, h=200)
-gspd50 <- spd(x=grimesc, bins=bins50, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE)
-gspd100<- spd(x=grimesc, bins=bins100, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE)
-gspd200 <- spd(x=grimesc, bins=bins200, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE)
+gspd50 <- spd(x=grimesc, bins=bins50, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE,verbose = FALSE)
+gspd100<- spd(x=grimesc, bins=bins100, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE,verbose = FALSE)
+gspd200 <- spd(x=grimesc, bins=bins200, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE,verbose = FALSE)
 
 ## I think we should add a proper 'add=TRUE' option to the basic plot.CalDates so the fiddling with polygons below is not necessary, it could work only off type=simple, for instance.
-dev.new(device=pdf, width=6, height=7)
+# dev.new(device=pdf, width=6, height=7)
 layout(matrix(c(1,1,2,3,4,5), 3, 2, byrow=TRUE), widths=c(3,3), heights=c(3,2,2))
 par(mar=c(4, 4, 1, 0.5)) #c(bottom, left, top, right)
 plot(gspd0, calendar="BCAD", fill.p="chocolate1")
 plot(gspd0, runm=50, calendar="BCAD", add=TRUE, fill.p=NA, border="chocolate4")
-plot(threedatesc[1],add=TRUE,calendar='BCAD',col=)
-plot(threedatesc[2],add=TRUE,calendar='BCAD',col=)
-plot(threedatesc[3],add=TRUE,calendar='BCAD',col=)
+plot(threedatesc[1],add=TRUE,calendar='BCAD', col='black')
+plot(threedatesc[2],add=TRUE,calendar='BCAD', col='black')
+plot(threedatesc[3],add=TRUE,calendar='BCAD', col='black')
 
 legend("topleft", bty="n", col=c("chocolate1","chocolate4","black"), legend=c("raw SPD", "smoothed (50-yr running mean)", "3 example dates"), lwd=c(5,1,5), cex=0.8)
 text(-5400, 0.02, "a", font=2)
+
 par(mar=c(0.5, 3, 0.5, 0.5)) #c(bottom, left, top, right)
+
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="white", spdnormalised=TRUE)
 plot(gspdthin, xaxt="n", yaxt="n", runm=50, fill.p="aquamarine", spdnormalised=TRUE, add=TRUE)
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="chocolate4", spdnormalised=TRUE, add=TRUE)
 legend("topleft", bty="n", col=c("chocolate4","aquamarine"), legend=c("original SPD", paste("Thinned to ", nrow(grimesthin), " random dates", sep="")), lwd=c(1,5), cex=0.8)
 text(7200, 0.00015, "b", font=2)
+
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="white", spdnormalised=TRUE)
 plot(gspd50, xaxt="n", yaxt="n", runm=50, fill.p="bisque3", spdnormalised=TRUE, add=TRUE)
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="chocolate4", spdnormalised=TRUE, add=TRUE)
 legend("topleft", bty="n", col=c("chocolate4","bisque3"), legend=c("original SPD", "50 year bins"), lwd=c(1,5), cex=0.8)
 text(7200, 0.00015, "c", font=2)
+
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="white", spdnormalised=TRUE)
 plot(gspd100, xaxt="n", yaxt="n", runm=50, fill.p="bisque3", spdnormalised=TRUE, add=TRUE)
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="chocolate4", spdnormalised=TRUE, add=TRUE)
 legend("topleft", bty="n", col=c("chocolate4","bisque3"), legend=c("original SPD", "100 year bins"), lwd=c(1,5), cex=0.8)
 text(7200, 0.00015, "d", font=2)
+
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="white", spdnormalised=TRUE)
 plot(gspd200, xaxt="n", yaxt="n", runm=50, fill.p="bisque3", spdnormalised=TRUE, add=TRUE)
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="chocolate4", spdnormalised=TRUE, add=TRUE)
@@ -152,94 +157,213 @@ southlevant.spd.norm = spd(southlevant.x, bins=southlevant.bins, timeRange=c(160
 sahara.spd.norm = spd(sahara.x, bins=sahara.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
 brazil.spd.norm = spd(brazil.x, bins=brazil.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
 ```
-```{r,fig.width=10,fig.height=5}
+
+
+```{r,fig.width=12,fig.height=6}
 ## Plot
 fmat=matrix(c(rep(1,3),rep(2,3),rep(3:5,each=2)),nrow=6,ncol=2)
 layout(fmat,widths=c(0.4,0.8),heights=c(1.2,1,0.8,0.8,1,1.2))
 x1 = calibrate(3523,45,normalised = F,verbose=F)
-plot(x1,type='auc')
+plot(x1,type='auc',cex.lab=1,cex.axis=1)
+
 #title(paste0("auc non-normalised:",round(sum(x1$grids$`1`$PrDens),3)))
-title("a")
+title("a",line=-2)
 x2 = calibrate(4274,45,normalised = F,verbose=F)
-plot(x2,type='auc')
+plot(x2,type='auc',cex.lab=1,cex.axis=1)
+
+
 #title(paste0("auc non-normalised:",round(sum(x2$grids$`1`$PrDens),3)))
-title("b")
+title("b",line=-2)
 par(yaxs="i")
 par(xaxs="i")
 par(mar=c(0,6,6,1)) # c(bottom, left, top, right)
-plot(southlevant.spd.nnorm,fill.p=NA, xlim=c(14000,9000), ylim=c(0,0.25), xaxt="n")
+plot(southlevant.spd.nnorm,fill.p=NA, xlim=c(14000,9000), ylim=c(0,0.25), xaxt="n",yaxt='n',cex.lab=1,cex.axis=0)
 rect(x=c(9509.948,10228.445,11241.710,12690)+100,xright=c(9509.948,10228.445,11241.710,12690)-100,ybottom=rep(-100,4),ytop=rep(100,5),border=NA,col='orange')
 plot(southlevant.spd.nnorm,fill.p='bisque3',ylim=c(0,0.25), xaxt="n", add=TRUE)
 plot(southlevant.spd.norm,type='simple', xaxt="n",add=TRUE)
 lines(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"BP"],reScale(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"CRA"])*par('usr')[4],col="red",lwd=2)
 legend("topleft",legend=c("Unnormalised SPD","Normalised SPD", "IntCal13","Areas with spikes"),col=c('bisque3','black',"red","orange"),lwd=c(5,1,1,5))
-title("c")
+title("c",line=-2)
+
 par(mar=c(0,6,0,1))
-plot(sahara.spd.nnorm,fill.p=NA, xlim=c(14000,9000), ylim=c(0,0.35), xaxt="n")
+plot(sahara.spd.nnorm,fill.p=NA, xlim=c(14000,9000), ylim=c(0,0.35), xaxt="n",yaxt='n',cex.lab=1)
 rect(x=c(9509.948,10228.445,11241.710,12690)+100,xright=c(9509.948,10228.445,11241.710,12690)-100,ybottom=rep(-100,4),ytop=rep(100,5),border=NA,col='orange')
 plot(sahara.spd.nnorm,fill.p='bisque3',ylim=c(0,0.35), xaxt="n", add=TRUE)
 plot(sahara.spd.norm,type = 'simple', xaxt="n",add=TRUE)
 lines(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"BP"],reScale(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"CRA"])*par('usr')[4],col="red",lwd=2)
-title("d")
+title("d",line=-2)
+title(ylab="Summed Probability",cex.lab=1.5,line=0.5)
+
 par(mar=c(6,6,0,1))
-plot(brazil.spd.nnorm,fill.p=NA, xlim=c(14000,9000), ylim=c(0,0.125), xaxt="n")
+plot(brazil.spd.nnorm,fill.p=NA, xlim=c(14000,9000), ylim=c(0,0.125), xaxt="n",yaxt='n',cex.lab=1,cex.axis=0)
 rect(x=c(9509.948,10228.445,11241.710,12690)+100,xright=c(9509.948,10228.445,11241.710,12690)-100,ybottom=rep(-100,4),ytop=rep(100,5),border=NA,col='orange')
 plot(brazil.spd.nnorm,fill.p='bisque3',ylim=c(0,0.125), xaxt="n", add=TRUE)
 plot(brazil.spd.norm,type = 'simple', xaxt="n", add=TRUE)
-axis(side=1, at=seq(14000,9000,-1000), labels=seq(14000,9000,-1000), las=2, cex.axis=0.7)
+axis(side=1, at=seq(14000,9000,-1000), labels=seq(14000,9000,-1000), las=2, cex.axis=1)
 lines(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"BP"],reScale(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"CRA"])*par('usr')[4],col="red",lwd=2)
-title("e")
+title("e",line=-2)
 ```
 
 
-<!-- The script below is deprecated -->
-## Figure 2 
+## Figure 3 
 
-The code below compares the summed probability distribution (SPD) of three distinct geographic regions (Southern Levant, Sahara, and Brazil) using normalised and unnormalised calibrated dates. 
+The `calsample` method implemented using normalised and non-normalised dates. The method fails to emulate peaks in the SPD corresponding to the steeper portions of the calibration curve. 
 
 ```{r}
-southlevant.x = calibrate(southLevant$CRA,southLevant$Error,normalised=T,verbose=F)
-southlevant.spd = spd(southlevant.x,timeRange=c(16000,9000),verbose=F)
+southlevant.x = calibrate(southLevant$CRA,southLevant$Error,normalised=TRUE,verbose=FALSE)
+southlevant.x2 = calibrate(southLevant$CRA,southLevant$Error,normalised=FALSE,verbose=FALSE)
 
-sahara.x = calibrate(sahara$Yrs.BP,sahara$STD,normalised=T,verbose=F)
-sahara.spd = spd(sahara.x,timeRange=c(16000,9000),verbose=F)
+test.cal.nn = modelTest(southlevant.x2,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='calsample', normalised = FALSE,runm=50,verbose=FALSE)
 
-brazil.x = calibrate(brazil$CRA,brazil$Error,normalised=T,verbose=F)
-brazil.spd = spd(brazil.x,timeRange=c(16000,9000),verbose=F)
+test.cal.n = modelTest(southlevant.x,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='calsample', normalised = TRUE,runm=50,verbose=FALSE)
 ```
 
-We then visualise the SPD justaxaposing them to the calibration curve. The script below highlights time intervals where the curve is steeper and hence more likely to cause peaks in the SPD:
+The `uncalsample` method implemented using normalised and non-normalised dates. The method emulates the peaks in the SPD corresponding to the steeper portions of the calibration curve. 
 
-```{r,fig.height=9,fig.width=4}
-par(mfrow=c(3,1))
-plot(southlevant.spd,fill.p=NA)
-rect(x=c(9509.948,10228.445,11241.710)+100,xright=c(9509.948,10228.445,11241.710)-100,ybottom=rep(-100,4),ytop=rep(100,4),border=NA,col='orange')
-plot(southlevant.spd,add=TRUE,fill.p='grey17')
-abline(v=c(9509.948,10228.445,11241.710)+100,lty=3,col='orange') #peak locations
-abline(v=c(9509.948,10228.445,11241.710)-100,lty=3,col='orange') #peak locations
-title(paste0("South Levant (n=",length(southlevant.x),")"))
-par(new=T)
-plot(intcal13$BP,intcal13$CRA,col="indianred",lwd=2,axes=F,xlab="",ylab="",type="l",ylim=c(8055,13295),xlim=c(16000,9000))
+```{r}
+test.uncal.nn = modelTest(southlevant.x2,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='uncalsample', normalised = FALSE,runm=50,verbose=FALSE)
 
-plot(sahara.spd,fill.p=NA)
-rect(x=c(9509.948,10228.445,11241.710)+100,xright=c(9509.948,10228.445,11241.710)-100,ybottom=rep(-100,4),ytop=rep(100,4),border=NA,col='orange')
-plot(sahara.spd,add=TRUE,fill.p='grey17')
-abline(v=c(9509.948,10228.445,11241.710)+100,lty=3,col='orange') #peak locations
-abline(v=c(9509.948,10228.445,11241.710)-100,lty=3,col='orange') #peak locations
-title(paste0("Sahara (n=",length(sahara.x),")"))
-par(new=T)
-plot(intcal13$BP,intcal13$CRA,col="indianred",lwd=2,axes=F,xlab="",ylab="",type="l",ylim=c(8055,13295),xlim=c(16000,9000))
-
-
-plot(brazil.spd,fill.p=NA)
-rect(x=c(9509.948,10228.445,11241.710)+100,xright=c(9509.948,10228.445,11241.710)-100,ybottom=rep(-100,4),ytop=rep(100,4),border=NA,col='orange')
-plot(brazil.spd,add=TRUE,fill.p='grey17')
-title(paste0("Brazil (n=",length(brazil.x),")"))
-abline(v=c(9509.948,10228.445,11241.710)+100,lty=3,col='orange') #peak locations
-abline(v=c(9509.948,10228.445,11241.710)-100,lty=3,col='orange') #peak locations
-par(new=T)
-plot(intcal13$BP,intcal13$CRA,col="indianred",lwd=2,axes=F,xlab="",ylab="",type="l",ylim=c(8055,13295),xlim=c(16000,9000))
+test.uncal.n = modelTest(southlevant.x,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='uncalsample', normalised = TRUE,runm=50,verbose=FALSE)
 ```
+
+
+```{r,fig.width=10,fig.height=10}
+par(mfrow=c(2,2))
+plot(test.cal.n,lwd.obs = 1.5)
+title('a')
+plot(test.cal.nn,lwd.obs = 1.5)
+title('b')
+plot(test.uncal.n,lwd.obs = 1.5)
+title('c')
+plot(test.uncal.nn,lwd.obs = 1.5)
+title('d')
+```
+
+## Figure 4 
+```{r,fig.height=2.5,fig.width=8}
+## Example with a subset of English and Welsh dates from the Euroevol dataset
+data(ewdates)
+data(ewowin)
+x <- calibrate(x=ewdates$C14Age, errors=ewdates$C14SD, normalised=FALSE)
+## Create centennial timeslices (also with site binning)
+bins1 <- binPrep(sites=ewdates$SiteID, ages=ewdates$C14Age, h=50)
+stkde1 <- stkde(x=x, coords=ewdates[,c("Eastings", "Northings")], win=ewowin, sbw=40000, cellres=2000, focalyears=seq(6500, 5000, -100), tbw=100, bins=bins1, backsight=200, outdir="im",amount=1)
+## Plot an example of all four basic outputs for 6000 calBP
+par(mar=c(0.5, 0.5, 2.5, 2))
+plot(stkde1, 6000, type="all")
+```
+
+
+# Figure 5 
+
+```{r,fig.height=5,fig.width=8}
+library(maptools)
+data(ewdates)
+x <- calibrate(x=ewdates$C14Age, errors=ewdates$C14SD, normalised=FALSE)
+bins1 <- binPrep(sites=ewdates$SiteID, ages=ewdates$C14Age, h=50)
+
+# Create SpatialPoints
+sites <- unique(data.frame(id=ewdates$SiteID,east=ewdates$Eastings,north=ewdates$Northings))
+rownames(sites) <- sites$id
+sites <- sites[,-1]
+sp::coordinates(sites) <- c("east","north")
+sp::proj4string(sites) <- sp::CRS("+init=epsg:27700")
+
+#Compute distance matrix
+d <- sp::spDists(sites,sites,longlat=FALSE)
+#Compute spatial weights 
+w <- spweights(d/1000,h=40)
+# Define blocks
+breaks <- seq(6300,5900,-200) 
+
+# Spatial Permutation Test
+res <- sptest(calDates=x,bins=bins1,timeRange=c(6300,5900),locations=sites,permute="locations",nsim=1000,breaks=breaks,spatialweights=w,ncores=1) 
+# Plot Results
+par(mar=c(1,1,1,1),mfrow=c(1,2))
+base=as(ewowin,"SpatialPolygons")
+sp::proj4string(base) <- sp::CRS("+init=epsg:27700")
+xlim = bbox(base)[1,]
+ylim = bbox(base)[2,]
+xlim[1] = xlim[1]-100000
+plot(base,col="antiquewhite3",border="antiquewhite3",xlim=xlim,ylim=ylim)
+plot(res,index=1,option="raw",add=TRUE,legend=TRUE,legSize=0.8,location="topleft",baseSize=0.9)
+plot(base,col="antiquewhite3",border="antiquewhite3",xlim=xlim)
+plot(res,index=1,option="test",add=TRUE,legend=TRUE,legSize=0.8,location="topleft",baseSize=0.9)
+```
+
+
+# Supplementary Figures (to do?)
+ 
+## Supplementary Figure 1
+
+## Supplementary Figure X?
+
+```{r}
+# Scenario 1: low individual uncertainties. Each date has a time-span of 10 years with a probability of 0.1 for each year.
+a=matrix(0,nrow=100,ncol=10)
+
+for (i in 0:9)
+{
+  a[(1+i*10):((i+1)*10),i+1]=0.1
+}
+
+# Scenario 2: high individual uncertainties. Each date has a time-span of 100 years with a probability of 0.01 for each year.
+b=matrix(0.01,nrow=100,ncol=10)
+
+
+#Comparison
+par(mfcol=c(2,2))
+plot(1:100,apply(a,1,sum),main="SPD dataset a",type="l",ylab="Summed Probability",xlab="time")
+plot(1:100,apply(b,1,sum),main="SPD dataset b",type="l",ylab="Summed Probability",xlab="time")
+
+#CKDE based on random dates from each sample, 100 repetitions
+set.seed(1)
+plot(density(apply(a,2,function(x){sample(1:100,size=1,prob=x)}),bw=10),xlim=c(1,100),ylim=c(0,0.02),col=rgb(0,0,0,0.25),main="CKDE dataset a",xlab="time")
+replicate(100,lines(density(apply(datematrix,2,function(x){sample(1:100,size=1,prob=x)}),bw=10),col=rgb(0,0,0,0.2)))
+#CKDE based on random dates from each sample, 100 repetitions
+plot(density(apply(datematrix2,2,function(x){sample(1:100,size=1,prob=x)}),bw=10),xlim=c(1,100),ylim=c(0,0.025),col=rgb(0,0,0,0.2),main="CKDE dataset b",xlab="time")
+replicate(100,lines(density(apply(datematrix2,2,function(x){sample(1:100,size=1,prob=x)}),bw=10),col=rgb(0,0,0,0.2)))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -299,55 +423,10 @@ plot(ckde300,type='multiline',main="CKDE South Levant (300 years bandwidth)")
 
 
 
-# Figure 3
-
-The figure below compares the normalised (dotred line) and non-normalised (filled polygon) calibrated distributions. The area under the curve (auc) for the normalised distribution is equal to 1 in both cases, but the auc for non-normalised distribution is >1 for flatter portions of the calibration curve (left panel) and <1 for steeper portions of the calibration curve. 
-
-```{r,fig.width=7,fig.height=4}
-par(mfrow=c(1,2))
-x1 = calibrate(3523,45,normalised = F,verbose=F)
-plot(x1,type='auc',label='a')
-title(paste0("auc non-normalised:",round(sum(x1$grids$`1`$PrDens),3)))
-x2 = calibrate(4274,45,normalised = F,verbose=F)
-plot(x2,type='auc',label='b')
-title(paste0("auc non-normalised:",round(sum(x2$grids$`1`$PrDens),3)))
-```
-
-
-# Figure 4
-
-The cumulative impact of normalised and normalised dates can be evaluated by comparing the SPDs resulting from each approach to calibration. The code below does this for each of the three datasets showed in figure 1. 
-
-<!-- alternatively just show the emedyd -->
-
-```{r}
-southlevant.x2 = calibrate(southLevant$CRA,southLevant$Error,normalised=F,verbose=F)
-southlevant.spd2 = spd(southlevant.x2,timeRange=c(16000,9000),verbose=F)
-sahara.x2 = calibrate(sahara$Yrs.BP,sahara$STD,normalised=F,verbose=F)
-sahara.spd2 = spd(sahara.x2,timeRange=c(16000,9000),verbose=F)
-brazil.x2 = calibrate(brazil$CRA,brazil$Error,normalised=F,verbose=F)
-brazil.spd2 = spd(brazil.x2,timeRange=c(16000,9000),verbose=F)
-```
-
-```{r,fig.height=9,fig.width=4}
-par(mfrow=c(3,1))
-plot(southlevant.spd,spdnormalised=TRUE,fill.p='grey55')
-plot(southlevant.spd2,spdnormalised=TRUE,lwd=2,add=TRUE,type = 'simple')
-title("Southern Levant")
-plot(sahara.spd,spdnormalised=TRUE,fill.p = 'grey55')
-plot(sahara.spd2,spdnormalised=TRUE,add=TRUE,lwd=2,type = 'simple')
-title("Sahara")
-plot(brazil.spd,spdnormalised=TRUE,fill.p = 'grey55')
-plot(brazil.spd2,spdnormalised=TRUE,add=TRUE,lwd=2,type = 'simple')
-title("Brazil")
-legend("topleft",legend=c("Normalised","Not-Normalised"),col=c("grey55",1),lwd=c(4,2))
-```
-
 
 # Figure 5
 
 The figure below compares an SPD based on  dates calibrated without normalisation (a) to a curve generated by calibrating the sum of gaussian curves based on the CRAs and associated errors. 
-
 
 ```{r}
 data(emedyd)
@@ -426,41 +505,6 @@ binsense(x=denmark.x,y=denmark$SiteID,timeRange=c(8000,4000),verbose = F,h=seq(0
 
 
 
-# Figure 8 
-
-The `calsample` method implemented using normalised and non-normalised dates. The method fails to emulate peaks in the SPD corresponding to the steeper portions of the calibration curve. 
-
-```{r}
-test.cal.nn = modelTest(southlevant.x2,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='calsample', normalised = FALSE,verbose=FALSE)
-
-test.cal.n = modelTest(southlevant.x,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='calsample', normalised = TRUE,verbose=FALSE)
-```
-
-```{r,fig.width=10,fig.height=4}
-par(mfrow=c(1,2))
-plot(test.cal.n,lwd.obs = 1.5)
-title('Calsample (Normalised Dates)')
-plot(test.cal.nn,lwd.obs = 1.5)
-title('Calsample (Non-Normalised Dates)')
-```
-
-# Figure 9
-The `uncalsample` method implemented using normalised and non-normalised dates. The method emulates the peaks in the SPD corresponding to the steeper portions of the calibration curve. 
-
-```{r}
-test.uncal.nn = modelTest(southlevant.x2,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='uncalsample', normalised = FALSE,verbose=FALSE)
-
-test.uncal.n = modelTest(southlevant.x,errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=3, method='uncalsample', normalised = TRUE,verbose=FALSE)
-```
-
-```{r,fig.width=10,fig.height=4}
-par(mfrow=c(1,2))
-plot(test.uncal.n,lwd.obs = 1.5)
-title('Uncalsample (Normalised Dates)')
-plot(test.uncal.nn,lwd.obs = 1.5)
-title('Uncalsample (Non-Normalised Dates)')
-```
-
 
 # Figure 10
 
@@ -487,61 +531,5 @@ plot(result,focalm='3',lwd=2,main=paste0("South-central Anatolia (n.bins=",resul
 plot(alldates.spd,add=T,type='simple',lty=2,col='grey27')
 ```
 
-# Figure 11 
-```{r,fig.height=2.5,fig.width=8}
-## Example with a subset of English and Welsh dates from the Euroevol dataset
-data(ewdates)
-data(ewowin)
-x <- calibrate(x=ewdates$C14Age, errors=ewdates$C14SD, normalised=FALSE)
-## Create centennial timeslices (also with site binning)
-bins1 <- binPrep(sites=ewdates$SiteID, ages=ewdates$C14Age, h=50)
-stkde1 <- stkde(x=x, coords=ewdates[,c("Eastings", "Northings")], win=ewowin, sbw=40000, cellres=2000, focalyears=seq(6500, 5000, -100), tbw=100, bins=bins1, backsight=200, outdir="im",amount=1)
-## Plot an example of all four basic outputs for 6000 calBP
-par(mar=c(0.5, 0.5, 2.5, 2))
-plot(stkde1, 6000, type="all")
-```
-
-
-# Figure 12 
-
-```{r,fig.height=5,fig.width=8}
-library(maptools)
-data(ewdates)
-x <- calibrate(x=ewdates$C14Age, errors=ewdates$C14SD, normalised=FALSE)
-bins1 <- binPrep(sites=ewdates$SiteID, ages=ewdates$C14Age, h=50)
-
-# Create SpatialPoints
-sites <- unique(data.frame(id=ewdates$SiteID,east=ewdates$Eastings,north=ewdates$Northings))
-rownames(sites) <- sites$id
-sites <- sites[,-1]
-sp::coordinates(sites) <- c("east","north")
-sp::proj4string(sites) <- sp::CRS("+init=epsg:27700")
-
-#Compute distance matrix
-d <- sp::spDists(sites,sites,longlat=FALSE)
-#Compute spatial weights 
-w <- spweights(d/1000,h=40)
-# Define blocks
-breaks <- seq(6300,5900,-200) 
-
-# Spatial Permutation Test
-res <- sptest(calDates=x,bins=bins1,timeRange=c(6300,5900),locations=sites,permute="locations",nsim=1000,breaks=breaks,spatialweights=w,ncores=1) 
-# Plot Results
-par(mar=c(1,1,1,1),mfrow=c(1,2))
-base=as(ewowin,"SpatialPolygons")
-sp::proj4string(base) <- sp::CRS("+init=epsg:27700")
-xlim = bbox(base)[1,]
-ylim = bbox(base)[2,]
-xlim[1] = xlim[1]-100000
-plot(base,col="antiquewhite3",border="antiquewhite3",xlim=xlim,ylim=ylim)
-plot(res,index=1,option="raw",add=TRUE,legend=TRUE,legSize=0.8,location="topleft",baseSize=0.9)
-plot(base,col="antiquewhite3",border="antiquewhite3",xlim=xlim)
-plot(res,index=1,option="test",add=TRUE,legend=TRUE,legSize=0.8,location="topleft",baseSize=0.9)
-```
-
-
-# Supplementary Figures
-
-<!-- move here code and scripts of supplementary figures -->
 
 
