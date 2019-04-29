@@ -140,9 +140,9 @@ The code below showcase the impact of normalised and unnormalised calibration on
 
 ```{r,fig.width=12,fig.height=6}
 ## Calibrate Dates
-southlevant.x = calibrate(southLevant$CRA,southLevant$Error,normalised=F,verbose=F)
-sahara.x = calibrate(sahara$Yrs.BP,sahara$STD,normalised=F,verbose=F)
-brazil.x = calibrate(brazil$CRA,brazil$Error,normalised=F,verbose=F)
+southlevant.x <- calibrate(southLevant$CRA,southLevant$Error,normalised=F,verbose=F)
+sahara.x <- calibrate(sahara$Yrs.BP,sahara$STD,normalised=F,verbose=F)
+brazil.x <- calibrate(brazil$CRA,brazil$Error,normalised=F,verbose=F)
 
 ## Minimal binning to control for sites with many dates.
 southlevant.bins <- binPrep(sites=southLevant$SiteName, ages=southLevant$CRA, h=50)
@@ -150,24 +150,24 @@ sahara.bins <- binPrep(sites=sahara$Sitename, ages=sahara$Yrs.BP, h=50)
 brazil.bins <- binPrep(sites=brazil$SiteName, ages=brazil$CRA, h=50)
 
 ## Summation 
-southlevant.spd.nnorm = spd(southlevant.x, bins=southlevant.bins, timeRange=c(16000,9000),verbose=F)
-sahara.spd.nnorm = spd(sahara.x, bins=sahara.bins, timeRange=c(16000,9000),verbose=F)
-brazil.spd.nnorm = spd(brazil.x, bins=brazil.bins, timeRange=c(16000,9000),verbose=F)
-southlevant.spd.norm = spd(southlevant.x, bins=southlevant.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
-sahara.spd.norm = spd(sahara.x, bins=sahara.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
-brazil.spd.norm = spd(brazil.x, bins=brazil.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
+southlevant.spd.nnorm <- spd(southlevant.x, bins=southlevant.bins, timeRange=c(16000,9000),verbose=F)
+sahara.spd.nnorm <- spd(sahara.x, bins=sahara.bins, timeRange=c(16000,9000),verbose=F)
+brazil.spd.nnorm <- spd(brazil.x, bins=brazil.bins, timeRange=c(16000,9000),verbose=F)
+southlevant.spd.norm <- spd(southlevant.x, bins=southlevant.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
+sahara.spd.norm <- spd(sahara.x, bins=sahara.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
+brazil.spd.norm <- spd(brazil.x, bins=brazil.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
 
 ## Parepare Panels
-fmat=matrix(c(rep(1,3),rep(2,3),rep(3:5,each=2)),nrow=6,ncol=2)
+fmat <- matrix(c(rep(1,3),rep(2,3),rep(3:5,each=2)),nrow=6,ncol=2)
 layout(fmat,widths=c(0.4,0.8),heights=c(1.2,1,0.8,0.8,1,1.2))
 
 # Panel a
-x1 = calibrate(3523,45,normalised = F,verbose=F)
+x1 <- calibrate(3523,45,normalised = F,verbose=F)
 plot(x1,type='auc',cex.lab=1,cex.axis=1)
 title("a",line=-2)
 
 # Panel b
-x2 = calibrate(4274,45,normalised = F,verbose=F)
+x2 <- calibrate(4274,45,normalised = F,verbose=F)
 plot(x2,type='auc',cex.lab=1,cex.axis=1)
 title("b",line=-2)
 
@@ -212,22 +212,22 @@ The script below compares empirical data (`southLevant`) and simulated samples (
 
 ```{r,fig.height=7,fig.width=7}
 # set number of cores for parallel processing:
-ncores = 10
+ncores <- 10
 
 # Calibrate data with and without normalisation
-southlevant.x = calibrate(southLevant$CRA,southLevant$Error,normalised=TRUE,verbose=FALSE)
-southlevant.x2 = calibrate(southLevant$CRA,southLevant$Error,normalised=FALSE,verbose=FALSE)
+southlevant.x <- calibrate(southLevant$CRA,southLevant$Error,normalised=TRUE,verbose=FALSE)
+southlevant.x2 <- calibrate(southLevant$CRA,southLevant$Error,normalised=FALSE,verbose=FALSE)
 
 # 50 years bin
-sl.bins = binPrep(sites = southLevant$SiteName, ages = southLevant$CRA, h = 50)
+sl.bins <- binPrep(sites = southLevant$SiteName, ages = southLevant$CRA, h = 50)
 
 # Fit and simulate theorethical SPDs using the calsample method:
 test.cal.nn = modelTest(southlevant.x2, bins = sl.bins, errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=ncores, method='calsample', normalised = FALSE,runm=50,verbose=FALSE)
-test.cal.n = modelTest(southlevant.x, bins = sl.bins, errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=ncores, method='calsample', normalised = TRUE,runm=50,verbose=FALSE)
+test.cal.n <- modelTest(southlevant.x, bins = sl.bins, errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=ncores, method='calsample', normalised = TRUE,runm=50,verbose=FALSE)
 
 # Fit and simulate theorethical SPDs using the uncalsample method:
-test.uncal.nn = modelTest(southlevant.x2, bins = sl.bins, errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=ncores, method='uncalsample', normalised = FALSE,runm=50,verbose=FALSE)
-test.uncal.n = modelTest(southlevant.x, bins = sl.bins, errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=ncores, method='uncalsample', normalised = TRUE,runm=50,verbose=FALSE)
+test.uncal.nn <- modelTest(southlevant.x2, bins = sl.bins, errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=ncores, method='uncalsample', normalised = FALSE,runm=50,verbose=FALSE)
+test.uncal.n <- modelTest(southlevant.x, bins = sl.bins, errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=ncores, method='uncalsample', normalised = TRUE,runm=50,verbose=FALSE)
 
 # Display Results
 par(mfrow=c(2,2))
@@ -247,14 +247,14 @@ The script below shows an example of mark permutation test, replicating the anal
 
 ```{r,fig.height=8,fig.width=4}
 # prepare data and generate the panregional for levant
-levant.emedyd = subset(emedyd,Region%in%c(1,2))
+levant.emedyd <- subset(emedyd,Region%in%c(1,2))
 
-alldatesLevant.emedyd = calibrate(x=levant.emedyd$CRA, errors=levant.emedyd$Error, calCurves='intcal13', normalised=FALSE,verbose=FALSE)
-bins = binPrep(sites=levant.emedyd$SiteName, ages=levant.emedyd$CRA, h=50)
-alldates.spd = spd(alldatesLevant.emedyd,bins=bins,timeRange=c(16000,9000),runm=200,spdnormalised=T,verbose=F)
+alldatesLevant.emedyd <- calibrate(x=levant.emedyd$CRA, errors=levant.emedyd$Error, calCurves='intcal13', normalised=FALSE,verbose=FALSE)
+bins <- binPrep(sites=levant.emedyd$SiteName, ages=levant.emedyd$CRA, h=50)
+alldates.spd <- spd(alldatesLevant.emedyd,bins=bins,timeRange=c(16000,9000),runm=200,spdnormalised=T,verbose=F)
 
 #execute the permutation test
-result = permTest(x=alldatesLevant.emedyd, bins=bins, marks=levant.emedyd$Region, timeRange=c(16000,9000), runm=200,nsim=1000,spdnormalised=T,verbose=FALSE)
+result <- permTest(x=alldatesLevant.emedyd, bins=bins, marks=levant.emedyd$Region, timeRange=c(16000,9000), runm=200,nsim=1000,spdnormalised=T,verbose=FALSE)
 
 # plot results
 par(mfrow=c(2,1))
@@ -342,16 +342,16 @@ my_sum <- oxcal_Sum(my_dates)
 my_result_file <- executeOxcalScript(my_sum)
 my_result_text <- readOxcalOutput(my_result_file)
 my_result_data <- parseFullOxcalOutput(my_result_text)
-res=my_result_data[nrow(southLevant)+3]
+res <- my_result_data[nrow(southLevant)+3]
 
-n=length(res$`ocd[1]`$likelihood$prob) #number of probabilities
-PrDens=res$ocd[[6]][[8]]
-resolution=res$ocd[[6]][[7]]
-PrDens=PrDens/sum(PrDens)/resolution
-calBPs = res$ocd[[6]][[6]]+seq(from=0,by=resolution,length.out=n)-1950
+n <- length(res$`ocd[1]`$likelihood$prob) #number of probabilities
+PrDens <- res$ocd[[6]][[8]]
+resolution <- res$ocd[[6]][[7]]
+PrDens <- PrDens/sum(PrDens)/resolution
+calBPs <- res$ocd[[6]][[6]]+seq(from=0,by=resolution,length.out=n)-1950
 
  ## Compute SPD in rcarbon using a wider timeRange to control edge effect
-southlevant.spd3 = spd(southlevant.x,verbose=F,timeRange=c(21000,8000))
+southlevant.spd3 <- spd(southlevant.x,verbose=F,timeRange=c(21000,8000))
 
  ## Compare rcarbon and oxcal
 plot(southlevant.spd3,spdnormalised=T,xlim=c(21000,8000),fill.p = 'grey55')
@@ -365,29 +365,29 @@ The script below visually compares the summation of unnormalised calibrated date
 
 ```{r}
 data(emedyd)
-d=subset(emedyd,Region==1&CRA<10000&CRA>7000)
+d <- subset(emedyd,Region==1&CRA<10000&CRA>7000)
 
 # Create SPD using uncalibrated dates
-sumUncalMat=matrix(NA,nrow=length(13000:4000),ncol=nrow(d))
+sumUncalMat <- matrix(NA,nrow=length(13000:4000),ncol=nrow(d))
 for (i in 1:nrow(d))
   {
-    sumUncalMat[,i]=dnorm(13000:4000,mean=d$CRA[i],sd=d$Error[i])
+    sumUncalMat[,i] <- dnorm(13000:4000,mean=d$CRA[i],sd=d$Error[i])
   }
 
-PrDensNN = apply(sumUncalMat,1,sum)
-PrDens = PrDensNN/sum(PrDensNN)
-sumUncal=data.frame(CRA=13000:4000,PrDens=PrDens)
+PrDensNN <- apply(sumUncalMat,1,sum)
+PrDens <- PrDensNN/sum(PrDensNN)
+sumUncal <- data.frame(CRA=13000:4000,PrDens=PrDens)
 
 # Calibrate the entire uncalibrated SPD 
-sumCal=calibrate(as.UncalGrid(sumUncal),eps=0,verbose=FALSE)
+sumCal <- calibrate(as.UncalGrid(sumUncal),eps=0,verbose=FALSE)
 
 # Normalise Probability Sum to Unity
-sumCal$PrDens=sumCal$PrDens/sum(sumCal$PrDens)
+sumCal$PrDens <- sumCal$PrDens/sum(sumCal$PrDens)
 
 # Calibrate dates without normalisation
-x=calibrate(d$CRA,d$Error,normalised=F,verbose=FALSE)
+x <- calibrate(d$CRA,d$Error,normalised=F,verbose=FALSE)
 # Create SPD
-SPDnn=spd(x,timeRange=c(12000,8000),spdnormalised=T,verbose=FALSE)
+SPDnn <- spd(x,timeRange=c(12000,8000),spdnormalised=T,verbose=FALSE)
 
 # Plot and Compare
 plot(SPDnn)
@@ -402,15 +402,15 @@ The figure below showcase how the simple visual inspection of SPDs can be mislea
 
 ```{r,fig.width=7,fig.height=7,results='hide'}
 # Dataset a: low individual uncertainties. Each date has a time-span of 10 years with a probability of 0.1 for each year.
-a = matrix(0,nrow=100,ncol=10)
+a <- matrix(0,nrow=100,ncol=10)
 
 for (i in 0:9)
 {
-  a[(1+i*10):((i+1)*10),i+1]=0.1
+  a[(1+i*10):((i+1)*10),i+1] <- 0.1
 }
 
 # Dataset b: high individual uncertainties. Each date has a time-span of 100 years with a probability of 0.01 for each year.
-b = matrix(0.01,nrow=100,ncol=10)
+b <- matrix(0.01,nrow=100,ncol=10)
 
 
 #Comparison of SPDs
@@ -426,6 +426,24 @@ replicate(100,lines(density(apply(a,2,function(x){sample(1:100,size=1,prob=x)}),
 plot(density(apply(b,2,function(x){sample(1:100,size=1,prob=x)}),bw=10),xlim=c(1,100),ylim=c(0,0.025),col=rgb(0,0,0,0.2),main="CKDE dataset b",xlab="time")
 replicate(100,lines(density(apply(b,2,function(x){sample(1:100,size=1,prob=x)}),bw=10),col=rgb(0,0,0,0.2)))
 ```
+
+## Supplementary Figure 4
+
+The script below compares observed and expected SPD (panel *a*) and growth rates (panel *b*) of British and Welsh dates for the interval 8,000 - 4,000 calBP (n.bins=1461, n.dates=2327). The rates of change are computed using he default settings of the formula $(d_t/d_{t-\Delta t})^{1/\Delta t -1}$, where $d_t$ is the summed probability of calibrated radiocarbon dates at a point in time $t$,  $d_{t-\Delta t}$ is the summed probability probability at the "backsight" year, in this case 100 years prior to each focal year (i.e. $\Delta t = 100$). Notice how the significant departure from the null hypothesis are different depending on whether the density or the rate of change in density is being evaluated.
+
+
+```{r,fig.height=8,fig.width=4}
+ncores <- 10 #number of cores for parallel processing
+x.ew <- calibrate(x=ewdates$C14Age, errors=ewdates$C14SD, normalised=FALSE,verbose=FALSE)
+bins.ew <- binPrep(sites=ewdates$SiteID, ages=ewdates$C14Age, h=50)
+
+ew.mod <- modelTest(x.ew,errors=ewdates$C14SD,bins=bins.ew,timeRange=c(8000,4000),nsim=1000,runm=50,ncores=ncores,backsight=100)
+
+par(mfrow=c(2,1))
+plot(ew.mod,lwd.obs = 1.5, main = paste0("a (global P-value: ", round(ew.mod$pval,3),")"))
+plot(ew.mod,lwd.obs=1.5, type='roc', main = paste0("b (global P-value: ", round(ew.mod$pval.roc,3),")"), ylim=c(-0.015,0.015))
+```
+
 
 
 # References
