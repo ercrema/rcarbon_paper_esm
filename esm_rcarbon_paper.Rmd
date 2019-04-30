@@ -429,7 +429,7 @@ replicate(100,lines(density(apply(b,2,function(x){sample(1:100,size=1,prob=x)}),
 
 ## Supplementary Figure 4
 
-The script below compares observed and expected SPD (panel *a*) and growth rates (panel *b*) of British and Welsh dates for the interval 8,000 - 4,000 calBP (n.bins=1461, n.dates=2327). The rates of change are computed using he default settings of the formula $(d_t/d_{t-\Delta t})^{1/\Delta t -1}$, where $d_t$ is the summed probability of calibrated radiocarbon dates at a point in time $t$,  $d_{t-\Delta t}$ is the summed probability probability at the "backsight" year, in this case 100 years prior to each focal year (i.e. $\Delta t = 100$). Notice how the significant departure from the null hypothesis are different depending on whether the density or the rate of change in density is being evaluated.
+The script below compares observed and expected SPD (panel *a*) and growth rates (panel *b*) of British and Welsh dates for the interval 8,000 - 4,000 calBP (n.bins=1461, n.dates=2327). The rates of change are computed using he default settings of the formula $(d_t/d_{t-\Delta t})^{1/\Delta t -1}$, where $d_t$ is the summed probability of calibrated radiocarbon dates at a point in time $t$,  $d_{t-\Delta t}$ is the summed probability probability at the "backsight" year, in this case 200 years prior to each focal year (i.e. $\Delta t = 200$). Notice how the significant departure from the null hypothesis are different depending on whether the density or the rate of change in density is being evaluated.
 
 
 ```{r,fig.height=8,fig.width=4}
