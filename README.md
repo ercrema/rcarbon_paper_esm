@@ -1,2 +1,2 @@
 # rcarbon_paper_esm
-ESM for the manuscript "Model-based inferences from large sets of radiocarbon dates: software and method"
+Source code and dataset for the manuscript "Inference from large sets of radiocarbon dates: software and methods" authored by Enrico Crema and Andrew Bevan. 
