@@ -5,4 +5,4 @@ The current version of the analysis are based on the development version (v1.3 p
 
 `devtools::install_github("ahb108/rcarbon@v1.3.0")`
 
-Readers interested in accessing directly the rendered version of the markdown document can click on [this link to download the file](https://raw.githubusercontent.com/ercrema/rcarbon_paper_esm/master/esm_rcarbon_paper.html).
+Readers interested in accessing directly the rendered version of the markdown document can access [this webpage](http://htmlpreview.github.io/?https://github.com/ercrema/rcarbon_paper_esm/blob/master/esm_rcarbon_paper.html) or [download the entire repository](https://github.com/ercrema/rcarbon_paper_esm/zipball/master/) and open the file `esm_rcarbon_paper.html` with a browser.
