@@ -68,8 +68,8 @@ The figure below displays the consequence of thinning and binning in the summati
 ```{r,fig.width=6,fig.height=7}
 grimes <- euroevol[grepl("S2072", euroevol$SiteID),]
 grimesc <- calibrate(x=grimes$C14Age, errors=grimes$C14SD, ids=grimes$C14ID, normalised=FALSE,verbose = FALSE)
-workingstartBP <- 7500
-workingendBP <- 2500
+workingstartBP <- 6000
+workingendBP <- 2000
 gspd0 <- spd(x=grimesc, timeRange=c(workingstartBP,workingendBP), datenormalised=TRUE,verbose = FALSE)
 threedates <- grimes[grimes$LabCode %in% c("BM-1022","BM-1033","BM-1066"),]
 threedatesc <- calibrate(x=threedates$C14Age, errors=threedates$C14SD, ids=threedates$C14ID, normalised=FALSE,verbose=FALSE)
@@ -100,8 +100,8 @@ plot(threedatesc[1],add=TRUE,calendar='BCAD', col='black')
 plot(threedatesc[2],add=TRUE,calendar='BCAD', col='black')
 plot(threedatesc[3],add=TRUE,calendar='BCAD', col='black')
 
-legend("topleft", bty="n", col=c("chocolate1","chocolate4","black"), legend=c("raw SPD", "smoothed (50-yr running mean)", "3 example dates"), lwd=c(5,1,5), cex=0.8)
-text(-5400, 0.02, "a", font=2)
+legend("topright", bty="n", col=c("chocolate1","chocolate4","black"), legend=c("raw SPD", "smoothed (50-yr running mean)", "3 example dates"), lwd=c(5,1,5), cex=0.8)
+text(-3800, 0.02, "a", font=2)
 
 # Panel b
 par(mar=c(0.5, 3, 0.5, 0.5)) 
@@ -109,29 +109,29 @@ par(mar=c(0.5, 3, 0.5, 0.5))
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="white", spdnormalised=TRUE)
 plot(gspdthin, xaxt="n", yaxt="n", runm=50, fill.p="aquamarine", spdnormalised=TRUE, add=TRUE)
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="chocolate4", spdnormalised=TRUE, add=TRUE)
-legend("topleft", bty="n", col=c("chocolate4","aquamarine"), legend=c("original SPD", paste("Thinned to ", nrow(grimesthin), " random dates", sep="")), lwd=c(1,5), cex=0.8)
-text(7200, 0.00015, "b", font=2)
+legend("topright", bty="n", col=c("chocolate4","aquamarine"), legend=c("original SPD", paste("Thinned to ", nrow(grimesthin), " random dates", sep="")), lwd=c(1,5), cex=0.7)
+text(BCADtoBP(-3800), 0.00015, "b", font=2)
 
 # Panel c
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="white", spdnormalised=TRUE)
 plot(gspd50, xaxt="n", yaxt="n", runm=50, fill.p="bisque3", spdnormalised=TRUE, add=TRUE)
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="chocolate4", spdnormalised=TRUE, add=TRUE)
-legend("topleft", bty="n", col=c("chocolate4","bisque3"), legend=c("original SPD", "50 year bins"), lwd=c(1,5), cex=0.8)
-text(7200, 0.00015, "c", font=2)
+legend("topright", bty="n", col=c("chocolate4","bisque3"), legend=c("original SPD", "50 year bins"), lwd=c(1,5), cex=0.7)
+text(BCADtoBP(-3800), 0.00015, "c", font=2)
 
 # Panel d
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="white", spdnormalised=TRUE)
 plot(gspd100, xaxt="n", yaxt="n", runm=50, fill.p="bisque3", spdnormalised=TRUE, add=TRUE)
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="chocolate4", spdnormalised=TRUE, add=TRUE)
-legend("topleft", bty="n", col=c("chocolate4","bisque3"), legend=c("original SPD", "100 year bins"), lwd=c(1,5), cex=0.8)
-text(7200, 0.00015, "d", font=2)
+legend("topright", bty="n", col=c("chocolate4","bisque3"), legend=c("original SPD", "100 year bins"), lwd=c(1,5), cex=0.7)
+text(BCADtoBP(-3800), 0.00015, "d", font=2)
 
 # Panel e
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="white", spdnormalised=TRUE)
 plot(gspd200, xaxt="n", yaxt="n", runm=50, fill.p="bisque3", spdnormalised=TRUE, add=TRUE)
 plot(gspd0, xaxt="n", yaxt="n", runm=50, fill.p=NA, border="chocolate4", spdnormalised=TRUE, add=TRUE)
-legend("topleft", bty="n", col=c("chocolate4","bisque3"), legend=c("original SPD", "200 year bins"), lwd=c(1,5), cex=0.8)
-text(7200, 0.00015, "e", font=2)
+legend("topright", bty="n", col=c("chocolate4","bisque3"), legend=c("original SPD", "200 year bins"), lwd=c(1,5), cex=0.7)
+text(BCADtoBP(-3800), 0.00015, "e", font=2)
 ```
 
 ## Figure 2
