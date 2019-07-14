@@ -157,7 +157,7 @@ southlevant.spd.norm <- spd(southlevant.x, bins=southlevant.bins, timeRange=c(16
 sahara.spd.norm <- spd(sahara.x, bins=sahara.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
 brazil.spd.norm <- spd(brazil.x, bins=brazil.bins, timeRange=c(16000,9000),verbose=F,datenormalised=T)
 
-## Parepare Panels
+## Prepare Panels
 fmat <- matrix(c(rep(1,3),rep(2,3),rep(3:5,each=2)),nrow=6,ncol=2)
 layout(fmat,widths=c(0.4,0.8),heights=c(1.2,1,0.8,0.8,1,1.2))
 
@@ -221,11 +221,11 @@ southlevant.x2 <- calibrate(southLevant$CRA,southLevant$Error,normalised=FALSE,v
 # 50 years bin
 sl.bins <- binPrep(sites = southLevant$SiteName, ages = southLevant$CRA, h = 50)
 
-# Fit and simulate theorethical SPDs using the calsample method:
+# Fit and simulate theoretical SPDs using the calsample method:
 test.cal.nn = modelTest(southlevant.x2, bins = sl.bins, errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=ncores, method='calsample', normalised = FALSE,runm=50,verbose=FALSE)
 test.cal.n <- modelTest(southlevant.x, bins = sl.bins, errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=ncores, method='calsample', normalised = TRUE,runm=50,verbose=FALSE)
 
-# Fit and simulate theorethical SPDs using the uncalsample method:
+# Fit and simulate theoretical SPDs using the uncalsample method:
 test.uncal.nn <- modelTest(southlevant.x2, bins = sl.bins, errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=ncores, method='uncalsample', normalised = FALSE,runm=50,verbose=FALSE)
 test.uncal.n <- modelTest(southlevant.x, bins = sl.bins, errors=southLevant$Error,timeRange=c(16000,9000), nsim=1000, ncores=ncores, method='uncalsample', normalised = TRUE,runm=50,verbose=FALSE)
 
@@ -377,17 +377,15 @@ for (i in 1:nrow(d))
 PrDensNN <- apply(sumUncalMat,1,sum)
 PrDens <- PrDensNN/sum(PrDensNN)
 sumUncal <- data.frame(CRA=13000:4000,PrDens=PrDens)
+sumUncal <- as.UncalGrid(sumUncal)
 
 # Calibrate the entire uncalibrated SPD 
-sumCal <- calibrate(as.UncalGrid(sumUncal),eps=0,verbose=FALSE)
-
-# Normalise Probability Sum to Unity
-sumCal$PrDens <- sumCal$PrDens/sum(sumCal$PrDens)
+sumCal <- calibrate(sumUncal,eps=0, spdnormalised=TRUE, verbose=FALSE)
 
 # Calibrate dates without normalisation
-x <- calibrate(d$CRA,d$Error,normalised=F,verbose=FALSE)
+x <- calibrate(d$CRA,d$Error,normalised=FALSE,verbose=FALSE)
 # Create SPD
-SPDnn <- spd(x,timeRange=c(12000,8000),spdnormalised=T,verbose=FALSE)
+SPDnn <- spd(x,timeRange=c(12000,8000),spdnormalised=TRUE,verbose=FALSE)
 
 # Plot and Compare
 plot(SPDnn)
