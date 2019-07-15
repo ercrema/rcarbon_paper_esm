@@ -1,7 +1,7 @@
 ---
 title: "Inferences from large sets of radiocarbon dates: software and method - Electronic Supplementary Material"
 author: "E.Crema & A.Bevan"
-date: "9 April 2019"
+date: "15 July 2019"
 output: html_document
 ---
 
@@ -15,7 +15,7 @@ This Rmarkdown document includes R scripts for generating all figures in the art
 
 # Setup
 
-All analyses and figures require the installation of the _rcarbon_ package version <!-- specify version here --> and additional data supplied in the ESM. To install _rcarbon_ type the following command in the R console:
+All analyses and figures require the installation of the _rcarbon_ package version 1.3 and additional data supplied in the ESM. To install _rcarbon_ type the following command in the R console:
 
 ```{r,eval=FALSE}
 # install.packages('devtools') ## execute the line if devtools is not installed
@@ -65,7 +65,7 @@ data(ewowin) # window of analysis for the English and Welsh subset
 
 The figure below displays the consequence of thinning and binning in the summation of radiocarbon dates. Panel *a* shows a summed probability distribution of dates from Grime’s Graves in Britain (n=130 dates) as well as smoothed version with a rolling mean of 50 years and three example dates. Panel *b* shows the smoothed raw density with of a randomly  ‘thinned’ dataset of just ten dates from the same site, while panels *c* to *e* show binned datasets at clustering cut-offs of h=50, 100 and 200 years respectively.
 
-```{r,fig.width=6,fig.height=7}
+```{r,fig.width=4,fig.height=6}
 grimes <- euroevol[grepl("S2072", euroevol$SiteID),]
 grimesc <- calibrate(x=grimes$C14Age, errors=grimes$C14SD, ids=grimes$C14ID, normalised=FALSE,verbose = FALSE)
 workingstartBP <- 6000
