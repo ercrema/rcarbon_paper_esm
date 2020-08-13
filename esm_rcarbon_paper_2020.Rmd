@@ -148,9 +148,9 @@ The code below showcase the impact of normalised and unnormalised calibration on
 
 ```{r,fig.width=12,fig.height=6}
 ## Calibrate Dates
-southlevant.x <- calibrate(southLevant$CRA,southLevant$Error,normalised=F,verbose=F,calCurves='shcal20')
+southlevant.x <- calibrate(southLevant$CRA,southLevant$Error,normalised=F,verbose=F,calCurves='intcal20')
 sahara.x <- calibrate(sahara$Yrs.BP,sahara$STD,normalised=F,verbose=F,calCurves='intcal20')
-brazil.x <- calibrate(brazil$CRA,brazil$Error,normalised=F,verbose=F,calCurves='intcal20')
+brazil.x <- calibrate(brazil$CRA,brazil$Error,normalised=F,verbose=F,calCurves='shcal20')
 
 ## Minimal binning to control for sites with many dates.
 southlevant.bins <- binPrep(sites=southLevant$SiteName, ages=southLevant$CRA, h=50)
