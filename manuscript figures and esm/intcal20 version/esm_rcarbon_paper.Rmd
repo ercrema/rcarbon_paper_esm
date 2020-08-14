@@ -15,7 +15,7 @@ This Rmarkdown document includes R scripts for generating all figures in the art
 
 # Setup
 
-All analyses and figures require the installation of the _rcarbon_ package version 1.4.0 and additional data supplied in the ESM. To install _rcarbon_ type the following command in the R console:
+All analyses and figures require the installation of the _rcarbon_ package version 1.4 and additional data supplied in the ESM. To install _rcarbon_ type the following command in the R console:
 
 ```{r,eval=FALSE}
 install.packages("rcarbon")
