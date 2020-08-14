@@ -40,7 +40,7 @@ shcal20 <- read.csv('http://intcal.org/curves/shcal20.14c',
                     encoding="UTF-8",skip=11,header=F)
 colnames(shcal20) <- c("BP","CRA","Error","D14C","Sigma")
 
-# Eastern Meditteranean 14C Dataset from Roberts et al 2018
+# Eastern Mediterranean 14C Dataset from Roberts et al 2018
 data(emedyd) # this is available within the rcarbon package
 emedyd <- subset(emedyd, CRA<=17000&CRA>=8000) 
 southLevant <- subset(emedyd,Region=='1') #
@@ -480,7 +480,7 @@ legend("topleft",bg="white",legend=c("a","b"),col=c("lightgrey","red"),
 
 ## Supplementary Figure 3
 
-The figure below showcase how the simple visual inspection of SPDs can be misleading as it hides the uncertainty associated with individual dates. The script generates two hypothetical datasets, both with the same sample size (10 dates) and covering the same temporal range of analyses but with different degrees of uncertainty associated with each sample. In the dataset `a` the uncertainty of each date is described by uniform distribution with parameters $t_a$ and $t_b$, with the difference between $t_a$ and $t_b$ held constant to 10 units of time. Furthermore, the dates are abutting, i.e. $t_b$ of the first date correspond to the $t_a$ of the second date. The uncertainty associated with dates in the dataset `b` is also described with a uniform distribution, but this time $t_b-t_a$ covers the entire temporal range of analysis (100 time units). The summed probability of the two datasets are identical (flat over the time range of analysis, see figures in the left panel), but in the first case, we have a much higher confidence of constant density over time compared to dataset `b`. This can be shown by creating a composite kernel density estimates (CKDE) usinig randomly drawn dates from each sample. The figures on the right panel show this using 100 iterations, and showcase how the greater uncertainty associated with dataset `b`. Similar approaches for radiocarbon dates have been proposed in the literature (e.g. Brown 2017) and can be carried out using the `ckde()` function in _rcarbon_.
+The figure below showcase how the simple visual inspection of SPDs can be misleading as it hides the uncertainty associated with individual dates. The script generates two hypothetical datasets, both with the same sample size (10 dates) and covering the same temporal range of analyses but with different degrees of uncertainty associated with each sample. In the dataset `a` the uncertainty of each date is described by uniform distribution with parameters $t_a$ and $t_b$, with the difference between $t_a$ and $t_b$ held constant to 10 units of time. Furthermore, the dates are abutting, i.e. $t_b$ of the first date correspond to the $t_a$ of the second date. The uncertainty associated with dates in the dataset `b` is also described with a uniform distribution, but this time $t_b-t_a$ covers the entire temporal range of analysis (100 time units). The summed probability of the two datasets are identical (flat over the time range of analysis, see figures in the left panel), but in the first case, we have a much higher confidence of constant density over time compared to dataset `b`. This can be shown by creating a composite kernel density estimates (CKDE) using randomly drawn dates from each sample. The figures on the right panel show this using 100 iterations, and showcase how the greater uncertainty associated with dataset `b`. Similar approaches for radiocarbon dates have been proposed in the literature (e.g. Brown 2017) and can be carried out using the `ckde()` function in _rcarbon_.
 
 ```{r,fig.width=7,fig.height=7,results='hide'}
 # Dataset a: low individual uncertainties. 
@@ -554,11 +554,13 @@ Crema, E. R., Habu, J., Kobayashi, K., & Madella, M. (2016). [Summed Probability
 
 Hinz, M. Schmid, C., Knitter, D., & Tietze, C. (2018). [oxcAAR: Interface to 'OxCal' Radiocarbon Calibration. R package version 1.0.0.](https://CRAN.R-project.org/package=oxcAAR) 
 
+Hogg, A.G., Heaton, T.J., Hua, Q., Palmer, J.G., Turney, C.S., Southon, J., Bayliss, A., Blackwell, P.G., Boswijk, G., Ramsey, C.B., Pearson, C., Petchey, F., Reimer, P., Reimer, R., Wacker, L., (2020) [SHCal20 Southern Hemisphere Calibration, 0–55,000 Years Cal BP.](https://doi.org/10.1017/RDC.2020.59). Radiocarbon, 1–20. 
+
 Manning, K., & Timpson, A. (2014). [The demographic response to Holocene climate change in the Sahara.](https://doi.org/10.1016/j.quascirev.2014.07.003) Quaternary Science Reviews, 101, 28–35. 
 
 Manning, K., Colledge, S., Crema, E., Shennan, S., & Timpson, A. (2016). [The Cultural Evolution of Neolithic Europe. EUROEVOL Dataset 1: Sites, Phases and Radiocarbon Data.](https://doi.org/10.5334/joad.40) Journal of Open Archaeology Data, 5(0). 
 
-Reimer, P. J., Austin, W.E., Bard, E., Bayliss, A., et al. (2020). [The IntCal20 Northern Hemispher Radiocarbon Age Calibration Curve (0–55 CAL kBP)](https://doi.org/10.1017/RDC.2020.41) Radiocarbon, 55(4), 1869–1887. 
+Reimer, P.J., Austin, W.E.N., Bard, E., Bayliss, A., Blackwell, P.G., Ramsey, C.B., Butzin, M., Cheng, H., Edwards, R.L., Friedrich, M., Grootes, P.M., Guilderson, T.P., Hajdas, I., Heaton, T.J., Hogg, A.G., Hughen, K.A., Kromer, B., Manning, S.W., Muscheler, R., Palmer, J.G., Pearson, C., Plicht, J. van der, Reimer, R.W., Richards, D.A., Scott, E.M., Southon, J.R., Turney, C.S.M., Wacker, L., Adolphi, F., Büntgen, U., Capano, M., Fahrni, S.M., Fogtmann-Schulz, A., Friedrich, R., Köhler, P., Kudsk, S., Miyake, F., Olsen, J., Reinig, F., Sakamoto, M., Sookdeo, A., Talamo, S., (2020). [The IntCal20 Northern Hemisphere Radiocarbon Age Calibration Curve (0–55 CAL kBP)](https://doi.org/10.1017/RDC.2020.41). Radiocarbon 1–33. 
 
 Roberts, N., Woodbridge, J., Bevan, A., Palmisano, A., Shennan, S., & Asouti, E. (2018). [Human responses and non-responses to climatic variations during the last Glacial-Interglacial transition in the eastern Mediterranean.](https://doi.org/10.1016/j.quascirev.2017.09.011) Quaternary Science Reviews, 184, 47–67. 
 
