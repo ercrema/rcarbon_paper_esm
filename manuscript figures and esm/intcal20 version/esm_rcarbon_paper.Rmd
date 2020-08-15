@@ -268,7 +268,7 @@ The script below compares empirical data (`southLevant`) and simulated samples (
 
 ```{r,fig.height=7,fig.width=7}
 # set number of cores for parallel processing:
-ncores <- 10
+ncores <- 8
 
 # Calibrate data with and without normalisation
 southlevant.x <- calibrate(southLevant$CRA,southLevant$Error, 
@@ -525,7 +525,7 @@ The script below compares observed and expected SPD (panel *a*) and growth rates
 
 
 ```{r,fig.height=8,fig.width=4}
-ncores <- 10 #number of cores for parallel processing
+ncores <- 8 #number of cores for parallel processing
 x.ew <- calibrate(x=ewdates$C14Age, errors=ewdates$C14SD, normalised=FALSE,verbose=FALSE)
 bins.ew <- binPrep(sites=ewdates$SiteID, ages=ewdates$C14Age, h=50)
 
