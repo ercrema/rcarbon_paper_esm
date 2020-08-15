@@ -23,7 +23,7 @@ install.packages("rcarbon")
 
 To install the specific R version used for building this document please type:
 
-```{r*}
+```{r,eval=FALSE}
 devtools::install_github('ahb108/rcarbon@v.1.4.0')
 ```
 
