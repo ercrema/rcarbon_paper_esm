@@ -1,7 +1,7 @@
 ---
 title: "Inferences from large sets of radiocarbon dates: software and method - Electronic Supplementary Material"
 author: "E.Crema & A.Bevan"
-date: "29 January 2020"
+date: "15 August 2020"
 output: pdf_document
 ---
 
@@ -15,11 +15,18 @@ This Rmarkdown document includes R scripts for generating all figures in the art
 
 # Setup
 
-All analyses and figures require the installation of the _rcarbon_ package version 1.3.0 and additional data supplied in the ESM. To install _rcarbon_ type the following command in the R console:
+All analyses and figures require the installation of the _rcarbon_ package version 1.4 and additional data supplied in the ESM. To install the most recent CRAN version of  _rcarbon_ type the following command in the R console:
 
 ```{r,eval=FALSE}
 install.packages("rcarbon")
 ```
+
+To install the specific R version used for building this document please type:
+
+```{r*}
+devtools::install_github('ahb108/rcarbon@v.1.4.0')
+```
+
 
 Once the package is downloaded and installed, load _rcarbon_ by typing:
 
@@ -30,15 +37,17 @@ library(rcarbon)
 and read/load all relevant datasets:
 
 ```{r}
-# IntCal 13 Calibration Curve from Reimer et al 2013
-cctmp <- paste(system.file("extdata", package="rcarbon"), "/", "intcal13.14c", sep="")
-cctmp <- readLines(cctmp, encoding="UTF-8")
-cctmp <- cctmp[!grepl("[#]",cctmp)]
-cctmp.con <- textConnection(cctmp)
-intcal13 <- read.csv(cctmp.con, header=FALSE, stringsAsFactors=FALSE)
-colnames(intcal13) <- c("BP","CRA","Error","D14C","Sigma")
+# IntCal20 Calibration Curve from Reimer et al 2020
+intcal20 <- read.csv('http://intcal.org/curves/intcal20.14c', 
+                     encoding="UTF-8",skip=11,header=F)
+colnames(intcal20) <- c("BP","CRA","Error","D14C","Sigma")
 
-# Eastern Meditteranean 14C Dataset from Roberts et al 2018
+# ShCal20 Calibration Curve from Hogg et al 2020
+shcal20 <- read.csv('http://intcal.org/curves/shcal20.14c', 
+                    encoding="UTF-8",skip=11,header=F)
+colnames(shcal20) <- c("BP","CRA","Error","D14C","Sigma")
+
+# Eastern Mediterranean 14C Dataset from Roberts et al 2018
 data(emedyd) # this is available within the rcarbon package
 emedyd <- subset(emedyd, CRA<=17000&CRA>=8000) 
 southLevant <- subset(emedyd,Region=='1') #
@@ -167,9 +176,12 @@ The code below showcase the impact of normalised and unnormalised calibration on
 
 ```{r,fig.width=12,fig.height=6}
 ## Calibrate Dates
-southlevant.x <- calibrate(southLevant$CRA,southLevant$Error,normalised=F,verbose=F)
-sahara.x <- calibrate(sahara$Yrs.BP,sahara$STD,normalised=F,verbose=F)
-brazil.x <- calibrate(brazil$CRA,brazil$Error,normalised=F,verbose=F)
+southlevant.x <- calibrate(southLevant$CRA,southLevant$Error,
+                           normalised=F,verbose=F,calCurves='intcal20')
+sahara.x <- calibrate(sahara$Yrs.BP,sahara$STD,
+                      normalised=F,verbose=F,calCurves='intcal20')
+brazil.x <- calibrate(brazil$CRA,brazil$Error,
+                      normalised=F,verbose=F,calCurves='shcal20')
 
 ## Minimal binning to control for sites with many dates.
 southlevant.bins <- binPrep(sites=southLevant$SiteName, ages=southLevant$CRA, h=50)
@@ -216,13 +228,13 @@ rect(x=c(9509.948,10228.445,11241.710,12690)+100,
      ybottom=rep(-100,4),ytop=rep(100,5),border=NA,col='orange')
 plot(southlevant.spd.nnorm,fill.p='bisque3',ylim=c(0,0.25), xaxt="n", add=TRUE)
 plot(southlevant.spd.norm,type='simple', xaxt="n",add=TRUE)
-lines(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"BP"], 
-      reScale(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"CRA"])*par('usr')[4],
+lines(intcal20[intcal20$BP<=14000 & intcal20$BP>=9000,"BP"], 
+      reScale(intcal20[intcal20$BP<=14000 & intcal20$BP>=9000,"CRA"])*par('usr')[4],
       col="red",lwd=2)
 legend("topleft",
-       legend=c("Unnormalised SPD","Normalised SPD", "IntCal13","Areas with spikes"),
-       col=c('bisque3','black',"red","orange"),
-       lwd=c(5,1,1,5))
+       legend=c("Unnormalised SPD","Normalised SPD", "IntCal20","ShCal20","Areas with spikes"),
+       col=c('bisque3','black',"red","blue","orange"),
+       lwd=c(5,1,1,1,5))
 title("c",line=-2)
 
 # Panel d
@@ -234,8 +246,8 @@ rect(x=c(9509.948,10228.445,11241.710,12690)+100,
      ybottom=rep(-100,4),ytop=rep(100,5),border=NA,col='orange')
 plot(sahara.spd.nnorm,fill.p='bisque3',ylim=c(0,0.35), xaxt="n", add=TRUE)
 plot(sahara.spd.norm,type = 'simple', xaxt="n",add=TRUE)
-lines(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"BP"], 
-      reScale(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"CRA"])*par('usr')[4], 
+lines(intcal20[intcal20$BP<=14000 & intcal20$BP>=9000,"BP"], 
+      reScale(intcal20[intcal20$BP<=14000 & intcal20$BP>=9000,"CRA"])*par('usr')[4], 
       col="red",lwd=2)
 title("d",line=-2)
 title(ylab="Summed Probability",cex.lab=1.5,line=0.5)
@@ -250,9 +262,9 @@ rect(x=c(9509.948,10228.445,11241.710,12690)+100,
 plot(brazil.spd.nnorm,fill.p='bisque3',ylim=c(0,0.125), xaxt="n", add=TRUE)
 plot(brazil.spd.norm,type = 'simple', xaxt="n", add=TRUE)
 axis(side=1, at=seq(14000,9000,-1000), labels=seq(14000,9000,-1000), las=2, cex.axis=1)
-lines(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"BP"],
-      reScale(intcal13[intcal13$BP<=14000 & intcal13$BP>=9000,"CRA"])*par('usr')[4],
-      col="red",lwd=2)
+lines(shcal20[shcal20$BP<=14000 & shcal20$BP>=9000,"BP"],
+      reScale(shcal20[shcal20$BP<=14000 & shcal20$BP>=9000,"CRA"])*par('usr')[4],
+      col="blue",lwd=2)
 title("e",line=-2)
 ```
 
@@ -263,7 +275,7 @@ The script below compares empirical data (`southLevant`) and simulated samples (
 
 ```{r,fig.height=7,fig.width=7}
 # set number of cores for parallel processing:
-ncores <- 10
+ncores <- 8
 
 # Calibrate data with and without normalisation
 southlevant.x <- calibrate(southLevant$CRA,southLevant$Error, 
@@ -315,7 +327,7 @@ The script below shows an example of mark permutation test, replicating the anal
 levant.emedyd <- subset(emedyd,Region%in%c(1,2))
 
 alldatesLevant.emedyd <- calibrate(x=levant.emedyd$CRA, 
-                                   errors=levant.emedyd$Error, calCurves='intcal13', 
+                                   errors=levant.emedyd$Error, calCurves='intcal20', 
                                    normalised=FALSE,verbose=FALSE)
 bins <- binPrep(sites=levant.emedyd$SiteName, ages=levant.emedyd$CRA, h=50)
 alldates.spd <- spd(alldatesLevant.emedyd,bins=bins,timeRange=c(16000,9000),
@@ -411,7 +423,7 @@ text(x=478616+50000,y=187,"100km")
 The script below compares OxCal's SUM function (executed via the _oxcAAR_ package, Hinz et al 2018) with _rcarbon_'s `spd()` function. 
 
 ```{r}
- ## oxcal via oxcAAR
+## oxcal via oxcAAR
 library(oxcAAR)
 quickSetupOxcal()
 my_dates <- R_Date(southLevant$LabID, southLevant$CRA, southLevant$Error)
@@ -427,17 +439,17 @@ resolution <- res$ocd[[6]][[7]]
 PrDens <- PrDens/sum(PrDens)/resolution
 calBPs <- res$ocd[[6]][[6]]+seq(from=0,by=resolution,length.out=n)-1950
 
- ## Compute SPD in rcarbon using a wider timeRange to control edge effect
+## Compute SPD in rcarbon using a wider timeRange to control edge effect
 southlevant.spd3 <- spd(southlevant.x,verbose=F,timeRange=c(21000,8000))
 
- ## Compare rcarbon and oxcal
+## Compare rcarbon and oxcal
 plot(southlevant.spd3,spdnormalised=T,xlim=c(21000,8000),fill.p = 'grey55')
 lines(abs(calBPs), PrDens,col="red",lty=1,lwd=1.5)
 legend("topleft",legend=c("rcarbon (normalised)","OxCal"), 
        col=c("grey55","red"),lwd=c(15,1.5),lty=c(1,1))
 ```
 
- 
+
 ## Supplementary Figure 2
 The script below visually compares the summation of unnormalised calibrated dates (a) to a curve produced by first summing uncalibrated Gaussians conventional radiocarbon age distributions (each of weight 1) and then  calibrating them in one go (b).
 
@@ -448,9 +460,9 @@ d <- subset(emedyd,Region==1&CRA<10000&CRA>7000)
 # Create SPD using uncalibrated dates
 sumUncalMat <- matrix(NA,nrow=length(13000:4000),ncol=nrow(d))
 for (i in 1:nrow(d))
-  {
-    sumUncalMat[,i] <- dnorm(13000:4000,mean=d$CRA[i],sd=d$Error[i])
-  }
+{
+  sumUncalMat[,i] <- dnorm(13000:4000,mean=d$CRA[i],sd=d$Error[i])
+}
 
 PrDensNN <- apply(sumUncalMat,1,sum)
 PrDens <- PrDensNN/sum(PrDensNN)
@@ -475,7 +487,7 @@ legend("topleft",bg="white",legend=c("a","b"),col=c("lightgrey","red"),
 
 ## Supplementary Figure 3
 
-The figure below showcase how the simple visual inspection of SPDs can be misleading as it hides the uncertainty associated with individual dates. The script generates two hypothetical datasets, both with the same sample size (10 dates) and covering the same temporal range of analyses but with different degrees of uncertainty associated with each sample. In the dataset `a` the uncertainty of each date is described by uniform distribution with parameters $t_a$ and $t_b$, with the difference between $t_a$ and $t_b$ held constant to 10 units of time. Furthermore, the dates are abutting, i.e. $t_b$ of the first date correspond to the $t_a$ of the second date. The uncertainty associated with dates in the dataset `b` is also described with a uniform distribution, but this time $t_b-t_a$ covers the entire temporal range of analysis (100 time units). The summed probability of the two datasets are identical (flat over the time range of analysis, see figures in the left panel), but in the first case, we have a much higher confidence of constant density over time compared to dataset `b`. This can be shown by creating a composite kernel density estimates (CKDE) usinig randomly drawn dates from each sample. The figures on the right panel show this using 100 iterations, and showcase how the greater uncertainty associated with dataset `b`. Similar approaches for radiocarbon dates have been proposed in the literature (e.g. Brown 2017) and can be carried out using the `ckde()` function in _rcarbon_.
+The figure below showcase how the simple visual inspection of SPDs can be misleading as it hides the uncertainty associated with individual dates. The script generates two hypothetical datasets, both with the same sample size (10 dates) and covering the same temporal range of analyses but with different degrees of uncertainty associated with each sample. In the dataset `a` the uncertainty of each date is described by uniform distribution with parameters $t_a$ and $t_b$, with the difference between $t_a$ and $t_b$ held constant to 10 units of time. Furthermore, the dates are abutting, i.e. $t_b$ of the first date correspond to the $t_a$ of the second date. The uncertainty associated with dates in the dataset `b` is also described with a uniform distribution, but this time $t_b-t_a$ covers the entire temporal range of analysis (100 time units). The summed probability of the two datasets are identical (flat over the time range of analysis, see figures in the left panel), but in the first case, we have a much higher confidence of constant density over time compared to dataset `b`. This can be shown by creating a composite kernel density estimates (CKDE) using randomly drawn dates from each sample. The figures on the right panel show this using 100 iterations, and showcase how the greater uncertainty associated with dataset `b`. Similar approaches for radiocarbon dates have been proposed in the literature (e.g. Brown 2017) and can be carried out using the `ckde()` function in _rcarbon_.
 
 ```{r,fig.width=7,fig.height=7,results='hide'}
 # Dataset a: low individual uncertainties. 
@@ -505,13 +517,13 @@ plot(density(apply(a,2,function(x){sample(1:100,size=1,prob=x)}),bw=10),
      xlim=c(1,100),ylim=c(0,0.02),col=rgb(0,0,0,0.25), 
      main="CKDE dataset a",xlab="time")
 replicate(100,lines(density(apply(a,2,function(x)
-  {sample(1:100,size=1,prob=x)}),bw=10),col=rgb(0,0,0,0.2)))
+{sample(1:100,size=1,prob=x)}),bw=10),col=rgb(0,0,0,0.2)))
 #CKDE based on random dates from each sample, 100 repetitions
 plot(density(apply(b,2,function(x){sample(1:100,size=1,prob=x)}),bw=10),
      xlim=c(1,100),ylim=c(0,0.025),col=rgb(0,0,0,0.2), 
      main="CKDE dataset b",xlab="time")
 replicate(100,lines(density(apply(b,2,function(x)
-  {sample(1:100,size=1,prob=x)}),bw=10),col=rgb(0,0,0,0.2)))
+{sample(1:100,size=1,prob=x)}),bw=10),col=rgb(0,0,0,0.2)))
 ```
 
 ## Supplementary Figure 4
@@ -520,12 +532,12 @@ The script below compares observed and expected SPD (panel *a*) and growth rates
 
 
 ```{r,fig.height=8,fig.width=4}
-ncores <- 10 #number of cores for parallel processing
+ncores <- 8 #number of cores for parallel processing
 x.ew <- calibrate(x=ewdates$C14Age, errors=ewdates$C14SD, normalised=FALSE,verbose=FALSE)
 bins.ew <- binPrep(sites=ewdates$SiteID, ages=ewdates$C14Age, h=50)
 
 ew.mod <- modelTest(x.ew,errors=ewdates$C14SD,bins=bins.ew,timeRange=c(8000,4000),
-                    nsim=1000,runm=50,ncores=ncores,backsight=100)
+                    nsim=1000,runm=50,ncores=ncores,backsight=100,verbose=FALSE)
 
 par(mfrow=c(2,1))
 plot(ew.mod,lwd.obs = 1.5, 
@@ -549,11 +561,13 @@ Crema, E. R., Habu, J., Kobayashi, K., & Madella, M. (2016). [Summed Probability
 
 Hinz, M. Schmid, C., Knitter, D., & Tietze, C. (2018). [oxcAAR: Interface to 'OxCal' Radiocarbon Calibration. R package version 1.0.0.](https://CRAN.R-project.org/package=oxcAAR) 
 
+Hogg, A.G., Heaton, T.J., Hua, Q., Palmer, J.G., Turney, C.S., Southon, J., Bayliss, A., Blackwell, P.G., Boswijk, G., Ramsey, C.B., Pearson, C., Petchey, F., Reimer, P., Reimer, R., Wacker, L., (2020) [SHCal20 Southern Hemisphere Calibration, 0–55,000 Years Cal BP.](https://doi.org/10.1017/RDC.2020.59). Radiocarbon, 1–20. 
+
 Manning, K., & Timpson, A. (2014). [The demographic response to Holocene climate change in the Sahara.](https://doi.org/10.1016/j.quascirev.2014.07.003) Quaternary Science Reviews, 101, 28–35. 
 
 Manning, K., Colledge, S., Crema, E., Shennan, S., & Timpson, A. (2016). [The Cultural Evolution of Neolithic Europe. EUROEVOL Dataset 1: Sites, Phases and Radiocarbon Data.](https://doi.org/10.5334/joad.40) Journal of Open Archaeology Data, 5(0). 
 
-Reimer, P. J., Bard, E., Bayliss, A., Beck, J. W., Blackwell, P. G., Ramsey, C. B., et al. (2013). [IntCal13 and Marine13 Radiocarbon Age Calibration Curves 0–50,000 Years cal BP.](https://doi.org/10.2458/azu_js_rc.55.16947) Radiocarbon, 55(4), 1869–1887. 
+Reimer, P.J., Austin, W.E.N., Bard, E., Bayliss, A., Blackwell, P.G., Ramsey, C.B., Butzin, M., Cheng, H., Edwards, R.L., Friedrich, M., Grootes, P.M., Guilderson, T.P., Hajdas, I., Heaton, T.J., Hogg, A.G., Hughen, K.A., Kromer, B., Manning, S.W., Muscheler, R., Palmer, J.G., Pearson, C., Plicht, J. van der, Reimer, R.W., Richards, D.A., Scott, E.M., Southon, J.R., Turney, C.S.M., Wacker, L., Adolphi, F., Büntgen, U., Capano, M., Fahrni, S.M., Fogtmann-Schulz, A., Friedrich, R., Köhler, P., Kudsk, S., Miyake, F., Olsen, J., Reinig, F., Sakamoto, M., Sookdeo, A., Talamo, S., (2020). [The IntCal20 Northern Hemisphere Radiocarbon Age Calibration Curve (0–55 CAL kBP)](https://doi.org/10.1017/RDC.2020.41). Radiocarbon 1–33. 
 
 Roberts, N., Woodbridge, J., Bevan, A., Palmisano, A., Shennan, S., & Asouti, E. (2018). [Human responses and non-responses to climatic variations during the last Glacial-Interglacial transition in the eastern Mediterranean.](https://doi.org/10.1016/j.quascirev.2017.09.011) Quaternary Science Reviews, 184, 47–67. 
 
