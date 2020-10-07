@@ -1,7 +1,7 @@
 # Supplementary Material for "Inference from large sets of radiocarbon dates: software and methods"
 This repository contains all data and scripts required to fully reproduce all analyses presented in the following paper:
 
-Crema, E.R., Bevan,A., *In Press*. Inference from large sets of radiocarbon dates: software and methods. Radiocarbon
+Crema, E.R., Bevan,A., 2020. [Inference from large sets of radiocarbon dates: software and methods](https://doi.org/10.1017/RDC.2020.95). Radiocarbon, DOI: 10.1017/RDC.2020.95
 
 # File Structure
 - `/data/*.csv` ... Contains CSV files of sample case studies
